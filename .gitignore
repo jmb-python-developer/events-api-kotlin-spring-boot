@@ -30,4 +30,7 @@ replay_pid*
 .gradle/
 # Gradle Wrapper
 gradle-wrapper.jar
+# Gradle build files
+build/
+
 
