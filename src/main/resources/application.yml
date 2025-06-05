@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/eventsdb  # File-based instead of mem
+    url: jdbc:h2:file:./data/eventsdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -14,9 +14,19 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false  # Reduce noise
     defer-datasource-initialization: true
+    open-in-view: false  # Disable warning
 
+  output:
+    ansi:
+      enabled: detect
+
+# Clean logging
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    com.jmb.events_api: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

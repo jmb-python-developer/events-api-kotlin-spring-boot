@@ -1,7 +1,7 @@
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
-	id("org.springframework.boot") version "3.5.0"
+	id("org.springframework.boot") version "3.3.5"  // ✅ Stable version
 	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("plugin.jpa") version "1.9.25"
 }
@@ -20,25 +20,28 @@ repositories {
 }
 
 dependencies {
+	// Core Spring Boot
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.slf4j:slf4j-api:2.0.9")
-	implementation("ch.qos.logback:logback-classic:1.4.11")
+
+	// Kotlin support
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+	// XML processing
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+
+	// Remove conflicting logging dependencies - let Spring Boot manage them
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// Database
 	runtimeOnly("com.h2database:h2")
-	//Testing dependencies
+
+	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.projectreactor:reactor-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
