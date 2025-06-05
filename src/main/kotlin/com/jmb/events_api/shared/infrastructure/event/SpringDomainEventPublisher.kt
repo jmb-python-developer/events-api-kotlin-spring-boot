@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationEventPublisher
 
 /**
  * Internal Published for the Events happening within the modules of this App. This principle could/should
- * -depending on the architecture evolution based on scaling- be extended to use Broker's EventPublisher
+ * - depending on the architecture evolution based on scaling - be extended to use a Broker's EventPublisher
  * in a different service.
  */
 class SpringDomainEventPublisher(
