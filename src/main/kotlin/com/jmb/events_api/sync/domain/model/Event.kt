@@ -4,12 +4,10 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 
-
 class Event(
-    val id: Long,
+    val id: EventId,
     val title: String,
-    val startDate: LocalDateTime,
-    val endDate: LocalDateTime,
+    val date: DateRange,
     val priceRange: PriceRange,
     val sellMode: SellMode,
     val providerEventId: String,        // base_event_id from XML
@@ -23,7 +21,6 @@ class Event(
     init {
         require(providerEventId.isNotBlank()) { "Provider event ID cannot be blank" }
         require(title.isNotBlank()) { "Title cannot be blank" }
-        require(startDate.isBefore(endDate)) { "Start date must be before end date" }
         require(sellMode == SellMode.ONLINE) { "Only online events are allowed" }
     }
 
@@ -42,8 +39,7 @@ class Event(
 
     fun updateFromProvider(
         newTitle: String,
-        newStartDate: LocalDateTime,
-        newEndDate: LocalDateTime,
+        date: DateRange,
         newPriceRange: PriceRange,
         newSellFrom: LocalDateTime,
         newSellTo: LocalDateTime,
@@ -54,8 +50,7 @@ class Event(
             id = this.id,
             providerEventId = this.providerEventId,
             title = newTitle.trim(),
-            startDate = newStartDate,
-            endDate = newEndDate,
+            date = date,
             priceRange = newPriceRange,
             sellMode = this.sellMode,
             organizerCompanyId = newOrganizerCompanyId,
@@ -70,10 +65,9 @@ class Event(
     companion object {
 
         fun createOnline(
-            id: Long,
+            id: EventId,
             title: String,
-            startDate: LocalDateTime,
-            endDate: LocalDateTime,
+            date: DateRange,
             priceRange: PriceRange,
             providerEventId: String,
             organizerCompanyId: String? = null,
@@ -85,8 +79,7 @@ class Event(
             return Event(
                 id = id,
                 title = title,
-                startDate = startDate,
-                endDate = endDate,
+                date = date,
                 priceRange,
                 sellMode = SellMode.ONLINE,
                 providerEventId = providerEventId,
@@ -100,11 +93,10 @@ class Event(
 
         // Alternative factory for provider sync scenarios
         fun fromProviderData(
-            id: Long,
+            id: EventId,
             providerEventId: String,
             title: String,
-            startDate: LocalDateTime,
-            endDate: LocalDateTime,
+            date: DateRange,
             zones: List<Zone> // You'll need to create this class
         ): Event {
             val minPrice = zones.minOfOrNull { it.price } ?: BigDecimal.ZERO
@@ -115,8 +107,7 @@ class Event(
                 id = id,
                 providerEventId = providerEventId,
                 title = title,
-                startDate = startDate,
-                endDate = endDate,
+                date = date,
                 priceRange = priceRange,
             )
         }

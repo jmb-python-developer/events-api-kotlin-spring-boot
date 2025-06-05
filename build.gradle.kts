@@ -30,6 +30,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("org.slf4j:slf4j-api:2.0.9")
+	implementation("ch.qos.logback:logback-classic:1.4.11")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	runtimeOnly("com.h2database:h2")
 	//Testing dependencies
