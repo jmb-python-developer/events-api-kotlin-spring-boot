@@ -13,10 +13,18 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
-    show-sql: false  # Reduce noise
+      ddl-auto: validate
+    show-sql: false
     defer-datasource-initialization: true
-    open-in-view: false  # Disable warning
+    open-in-view: false
+
+  # ← Add SQL initialization config
+  sql:
+    init:
+      mode: always  # ← Execute scripts for all database types
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: false
 
   output:
     ansi:
