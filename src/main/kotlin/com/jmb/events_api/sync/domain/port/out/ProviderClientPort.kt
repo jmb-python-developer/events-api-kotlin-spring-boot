@@ -9,6 +9,7 @@ interface ProviderClientPort {
     suspend fun fetchEvents(): List<ProviderEventDto>
 }
 
+//Default values added as well as fallback from application.yml and diff profiles
 @ConfigurationProperties(prefix = "fever.provider")
 data class ProviderProperties(
     val url: String = "https://provider.code-challenge.feverup.com/api/events",

@@ -30,6 +30,14 @@ spring:
     ansi:
       enabled: detect
 
+# Provider Configuration
+fever:
+  provider:
+    url: "https://provider.code-challenge.feverup.com/api/events"
+    timeout: 5s
+    retry-attempts: 3
+    retry-delay: 500ms
+
 # Clean logging
 logging:
   level:
