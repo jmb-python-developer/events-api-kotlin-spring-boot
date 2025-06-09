@@ -22,7 +22,6 @@ class ProviderApiClient(
     override suspend fun fetchEvents(): List<ProviderEventDto> {
         return try {
             logger.info("Fetching events from provider: ${providerProperties.url}")
-
             val xmlContent = restTemplate.getForObject(providerProperties.url, String::class.java)
             val eventListResponse = xmlMapper.readValue(xmlContent, EventListResponseDto::class.java)
             eventListResponse.toCleanEvents() // Extension function does everything
