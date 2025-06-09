@@ -1,0 +1,18 @@
+package com.jmb.events_api.sync.domain.port.out
+
+import com.jmb.events_api.sync.application.dto.ProviderEventDto
+import org.springframework.boot.context.properties.ConfigurationProperties
+import java.time.Duration
+
+
+interface ProviderClientPort {
+    suspend fun fetchEvents(): List<ProviderEventDto>
+}
+
+@ConfigurationProperties(prefix = "fever.provider")
+data class ProviderProperties(
+    val url: String = "https://provider.code-challenge.feverup.com/api/events",
+    val timeout: Duration = Duration.ofSeconds(5),
+    val retryAttempts: Int = 3,
+    val retryDelay: Duration = Duration.ofMillis(500)
+)
