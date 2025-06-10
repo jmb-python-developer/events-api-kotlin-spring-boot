@@ -43,6 +43,8 @@ resilience4j:
         eventConsumerBufferSize: 10
         registerHealthIndicator: true
         automaticTransitionFromOpenToHalfOpenEnabled: true
+        slow-call-duration-threshold: 2s
+        slow-call-rate-threshold: 50
 
   retry:
     instances:
@@ -63,13 +65,13 @@ resilience4j:
   timelimiter:
     instances:
       providerApi:
-        timeoutDuration: 8s
+        timeoutDuration: 3s
         cancelRunningFuture: true
 
 # Provider Configuration
 fever:
   provider:
-    url: "https://provider.code-challenge.feverup.com/api/events"
+    url: http://127.0.0.1:3001/api/events #"https://provider.code-challenge.feverup.com/api/events"
     timeout: 5s
     retry-attempts: 3
     retry-delay: 500ms

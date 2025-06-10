@@ -4,6 +4,8 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry
 import io.github.resilience4j.retry.Retry
 import io.github.resilience4j.retry.RetryRegistry
+import io.github.resilience4j.timelimiter.TimeLimiter
+import io.github.resilience4j.timelimiter.TimeLimiterRegistry
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -68,5 +70,17 @@ class ResilienceConfig {
             }
 
         return retry
+    }
+
+    @Bean
+    fun providerApiTimeLimiter(timeLimiterRegistry: TimeLimiterRegistry): TimeLimiter {
+        val timeLimiter = timeLimiterRegistry.timeLimiter("providerApi")
+
+        timeLimiter.eventPublisher
+            .onTimeout { event ->
+                logger.warn("⏰ Provider API call timed out after ${timeLimiter.timeLimiterConfig.timeoutDuration}")
+            }
+
+        return timeLimiter
     }
 }

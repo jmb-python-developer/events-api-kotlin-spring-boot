@@ -32,7 +32,7 @@ class ResiliencePatternsDemoController(
         } catch (e: Exception) {
             mapOf(
                 "success" to false,
-                "error" to e.message,
+                "error" to (e.message ?: "Unknown error"),
                 "errorType" to e.javaClass.simpleName,
                 "circuitBreakerState" to providerApiClient.getCircuitBreakerState(),
                 "retryMetrics" to providerApiClient.getRetryMetrics()

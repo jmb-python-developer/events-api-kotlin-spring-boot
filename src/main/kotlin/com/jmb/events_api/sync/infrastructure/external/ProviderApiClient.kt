@@ -9,7 +9,9 @@ import com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiExce
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
+import io.github.resilience4j.kotlin.timelimiter.executeSuspendFunction
 import io.github.resilience4j.retry.Retry
+import io.github.resilience4j.timelimiter.TimeLimiter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -24,6 +26,7 @@ class ProviderApiClient(
     private val xmlMapper: XmlMapper,
     private val circuitBreaker: CircuitBreaker,
     private val retry: Retry,
+    private val timeLimiter: TimeLimiter,
 ) : ProviderClientPort {
 
     private val logger = LoggerFactory.getLogger(ProviderApiClient::class.java)
@@ -34,10 +37,12 @@ class ProviderApiClient(
         return try {
             logger.info("Fetching events from provider: ${providerProperties.url}")
 
-            // Apply both Circuit Breaker and Retry patterns using Kotlin extensions
-            val events = circuitBreaker.executeSuspendFunction {
-                retry.executeSuspendFunction {
-                    fetchEventsFromProvider()
+            // WRAP with TimeLimiter:
+            val events = timeLimiter.executeSuspendFunction {
+                circuitBreaker.executeSuspendFunction {
+                    retry.executeSuspendFunction {
+                        fetchEventsFromProvider()
+                    }
                 }
             }
 
@@ -50,13 +55,14 @@ class ProviderApiClient(
             val duration = java.time.Duration.between(startTime, Instant.now())
             logger.error("Failed to fetch events after ${duration.toMillis()}ms", e)
 
-            // Transform infrastructure exceptions to domain exceptions
             throw when (e) {
                 is ProviderApiException -> e
                 is io.github.resilience4j.circuitbreaker.CallNotPermittedException -> {
                     ProviderApiException.circuitBreakerOpen("Circuit breaker is open - provider may be down")
                 }
-
+                is java.util.concurrent.TimeoutException -> {  // ADD THIS
+                    ProviderApiException.timeout(e)
+                }
                 else -> ProviderApiException.networkError(e)
             }
         }
@@ -128,7 +134,7 @@ class ProviderApiClient(
      */
     fun getRetryMetrics(): Map<String, Any> = mapOf(
         "maxAttempts" to retry.retryConfig.maxAttempts,
-        "waitDuration" to retry.retryConfig.intervalFunction?.apply(1),
+        "waitDuration" to (retry.retryConfig.intervalFunction?.apply(1) ?: 0L),
         "name" to retry.name
     )
 }
