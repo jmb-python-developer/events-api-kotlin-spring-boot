@@ -33,7 +33,16 @@ dependencies {
 	// XML processing
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 
-	// Remove conflicting logging dependencies - let Spring Boot manage them
+	// ✨ NEW: Resilience4j for Circuit Breaker and Retry
+	implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
+	implementation("io.github.resilience4j:resilience4j-kotlin:2.2.0")
+	implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")
+	implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
+
+	// ✨ NEW: Coroutines support for Kotlin suspend functions
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	// Database
@@ -42,6 +51,7 @@ dependencies {
 	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

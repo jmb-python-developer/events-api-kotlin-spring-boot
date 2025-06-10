@@ -23,12 +23,48 @@ spring:
     init:
       mode: always  # ← Execute scripts for all database types
       schema-locations: classpath:schema.sql
-      data-locations: [] # classpath:data.sql uncomment for dev testing and data initialization
+      data-locations: [ ] # classpath:data.sql # uncomment for dev testing and data initialization
       continue-on-error: false
 
   output:
     ansi:
       enabled: detect
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      providerApi:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        registerHealthIndicator: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  retry:
+    instances:
+      providerApi:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2.0
+        enableRandomizedWait: false
+        retryExceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.net.UnknownHostException
+          - org.springframework.web.client.ResourceAccessException
+        ignoreExceptions:
+          - com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
+
+  timelimiter:
+    instances:
+      providerApi:
+        timeoutDuration: 8s
+        cancelRunningFuture: true
 
 # Provider Configuration
 fever:
@@ -46,3 +82,16 @@ logging:
     org.springframework.web: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator endpoints for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,retries
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
