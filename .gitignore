@@ -33,4 +33,8 @@ gradle-wrapper.jar
 # Gradle build files
 build/
 
+# Performance testing results
+performance-results/
+curl-format.txt
+
 
