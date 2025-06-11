@@ -17,8 +17,7 @@ class ProviderConfig {
     fun restTemplate(): RestTemplate {
         return RestTemplate()
     }
-
-    @Bean
+    
     fun xmlMapper(): XmlMapper {
         return XmlMapper().apply {
             // Don't fail on unknown XML properties

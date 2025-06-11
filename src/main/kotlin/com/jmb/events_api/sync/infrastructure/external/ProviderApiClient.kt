@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.jmb.events_api.sync.application.dto.ProviderEventDto
 import com.jmb.events_api.sync.domain.port.out.ProviderClientPort
 import com.jmb.events_api.sync.domain.port.out.ProviderProperties
+import com.jmb.events_api.sync.infrastructure.config.ProviderConfig
 import com.jmb.events_api.sync.infrastructure.external.dto.EventListResponseDto
 import com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -23,13 +24,14 @@ import java.time.Instant
 class ProviderApiClient(
     private val restTemplate: RestTemplate,
     private val providerProperties: ProviderProperties,
-    private val xmlMapper: XmlMapper,
+    private val providerConfig: ProviderConfig,
     private val circuitBreaker: CircuitBreaker,
     private val retry: Retry,
     private val timeLimiter: TimeLimiter,
 ) : ProviderClientPort {
 
     private val logger = LoggerFactory.getLogger(ProviderApiClient::class.java)
+    private val xmlMapper: XmlMapper = providerConfig.xmlMapper()
 
     override suspend fun fetchEvents(): List<ProviderEventDto> {
         val startTime = Instant.now()
