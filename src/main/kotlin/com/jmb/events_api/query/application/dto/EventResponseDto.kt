@@ -1,16 +1,17 @@
 package com.jmb.events_api.query.application.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigDecimal
 
 data class EventResponseDto(
     val id: String,
     val title: String,
-    val start_date: String,  // YYYY-MM-DD format
-    val start_time: String,  // HH:mm:ss format
-    val end_date: String,    // YYYY-MM-DD format
-    val end_time: String,    // HH:mm:ss format
-    val min_price: BigDecimal,
-    val max_price: BigDecimal
+    @JsonProperty("start_date") val startDate: String,
+    @JsonProperty("start_time") val startTime: String,
+    @JsonProperty("end_date") val endDate: String,
+    @JsonProperty("end_time") val endTime: String,
+    @JsonProperty("min_price") val minPrice: BigDecimal,
+    @JsonProperty("max_price") val maxPrice: BigDecimal
 ) {
     companion object {
         fun fromDomain(
@@ -24,12 +25,12 @@ data class EventResponseDto(
             return EventResponseDto(
                 id = eventId,
                 title = title,
-                start_date = startDateTime.toLocalDate().toString(),
-                start_time = startDateTime.toLocalTime().toString(),
-                end_date = endDateTime.toLocalDate().toString(),
-                end_time = endDateTime.toLocalTime().toString(),
-                min_price = minPrice,
-                max_price = maxPrice
+                startDate = startDateTime.toLocalDate().toString(),
+                startTime = startDateTime.toLocalTime().toString(),
+                endDate = endDateTime.toLocalDate().toString(),
+                endTime = endDateTime.toLocalTime().toString(),
+                minPrice = minPrice,
+                maxPrice = maxPrice
             )
         }
     }

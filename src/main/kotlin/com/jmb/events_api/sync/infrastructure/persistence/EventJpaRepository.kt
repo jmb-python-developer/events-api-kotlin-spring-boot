@@ -1,5 +1,6 @@
 package com.jmb.events_api.sync.infrastructure.persistence
 
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -43,6 +44,7 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     fun findEventsByDateRange(
         @Param("startDate") startDate: LocalDateTime,
         @Param("endDate") endDate: LocalDateTime,
+        pageable: Pageable,
     ): List<EventJpaEntity>
 
     @Query(
@@ -55,7 +57,8 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     )
     fun findAvailableEventsByDateRange(
         @Param("startDate") startDate: LocalDateTime,
-        @Param("endDate") endDate: LocalDateTime
+        @Param("endDate") endDate: LocalDateTime,
+        pageable: Pageable
     ): List<EventJpaEntity>
 
     @Query(

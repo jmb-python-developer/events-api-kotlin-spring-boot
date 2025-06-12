@@ -6,9 +6,11 @@ import com.jmb.events_api.query.infrastructure.web.dto.ApiResponse
 import com.jmb.events_api.query.infrastructure.web.validation.SearchValidation
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 /**
  * Main API endpoint implementing the Fever challenge requirement:
@@ -55,8 +57,14 @@ class EventSearchController(
 
         } catch (e: Exception) {
             logger.error("Search failed", e)
+            val (code, message) = when (e) {
+                is IllegalArgumentException -> "INVALID_INPUT" to e.message
+                is DateTimeParseException -> "INVALID_DATE_FORMAT" to "Invalid date format"
+                is DataAccessException -> "DATABASE_ERROR" to "Database temporarily unavailable"
+                else -> "INTERNAL_ERROR" to "Search operation failed"
+            }
             ResponseEntity.internalServerError()
-                .body(ApiResponse.error("INTERNAL_ERROR", "Search operation failed"))
+                .body(ApiResponse.error(code, message ?: "Unknown error"))
         }
     }
 }

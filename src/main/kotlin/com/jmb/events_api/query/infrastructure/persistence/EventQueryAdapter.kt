@@ -4,6 +4,7 @@ import com.jmb.events_api.query.application.dto.EventResponseDto
 import com.jmb.events_api.query.application.port.EventQueryPort
 import com.jmb.events_api.sync.infrastructure.persistence.EventJpaRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -27,10 +28,12 @@ class EventQueryAdapter(
     ): List<EventResponseDto> {
         logger.debug("Querying events from {} to {} (availableOnly: {})", startDate, endDate, availableOnly)
 
+        val pageable = PageRequest.of(0, maxResults)
+
         val entities = if (availableOnly) {
-            eventJpaRepository.findAvailableEventsByDateRange(startDate, endDate)
+            eventJpaRepository.findAvailableEventsByDateRange(startDate, endDate, pageable)
         } else {
-            eventJpaRepository.findEventsByDateRange(startDate, endDate)
+            eventJpaRepository.findEventsByDateRange(startDate, endDate, pageable)
         }
 
         val events = entities.take(maxResults).map { entity ->
