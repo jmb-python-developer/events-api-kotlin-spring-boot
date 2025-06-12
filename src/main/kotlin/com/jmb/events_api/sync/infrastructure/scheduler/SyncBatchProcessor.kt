@@ -17,7 +17,7 @@ class SyncBatchProcessor(
 
     suspend fun processBatch(
         events: List<ProviderEventDto>,
-        batchSize: Int = 100
+        batchSize: Int = 50,
     ): BatchProcessingResult {
         val batchResults = events.chunked(batchSize)
             .withIndex()
