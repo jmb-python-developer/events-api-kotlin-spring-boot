@@ -37,9 +37,8 @@ class SyncEventsService(
         private const val MAX_RETRY_ATTEMPTS = 3
     }
 
-    fun syncEvents(events: Collection<Event>): Collection<Event> {
-        //TODO: Implement this after ports are done.
-        return emptyList()
+    suspend fun syncEvents(events: Collection<Event>): Collection<Event> {
+        return events.mapNotNull { event -> processEvent(event) }
     }
 
     /**
