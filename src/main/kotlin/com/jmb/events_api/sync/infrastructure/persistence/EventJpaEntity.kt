@@ -40,7 +40,7 @@ class EventJpaEntity(
     @Column(name = "last_update")
     val lastUpdated: Instant,
     @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val zones: List<ZoneJpaEntity> = emptyList(),
+    var zones: List<ZoneJpaEntity> = emptyList(),
     @Version
     val version: Long = 1
 )

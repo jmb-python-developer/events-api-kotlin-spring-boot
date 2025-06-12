@@ -17,14 +17,9 @@ class EventSyncScheduler(
 ) {
     private val logger = LoggerFactory.getLogger(EventSyncScheduler::class.java)
 
-    @Scheduled(fixedDelayString = "\${fever.sync.interval}")
+    //Default to 10 secs if not configured in application.yml
+    @Scheduled(fixedDelayString = "\${fever.sync.interval:30000}")
     fun scheduleEventSync() {
         logger.info("Scheduler triggering ... ")
-    }
-
-    @Scheduled(cron = "0 */5 * * * *") // Every 5 minutes
-    fun scheduleHealthCheck() {
-        // TODO: Implement health check logic
-        // Hint: Check provider availability, circuit breaker state
     }
 }

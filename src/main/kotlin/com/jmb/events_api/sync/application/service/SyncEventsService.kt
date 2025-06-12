@@ -15,8 +15,8 @@ import com.jmb.events_api.sync.domain.model.Event
 class SyncEventsService(
     //TODO: Add dependent ports soon, when they are done.
 ) {
-    fun syncEvents(): Collection<Event> {
+    fun syncEvents(events: Collection<Event>): Collection<Event> {
         //TODO: Implement this after ports are done.
-        return listOf()
+        return emptyList()
     }
 }

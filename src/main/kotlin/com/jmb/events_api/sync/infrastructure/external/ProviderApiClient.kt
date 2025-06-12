@@ -39,7 +39,6 @@ class ProviderApiClient(
         return try {
             logger.info("Fetching events from provider: ${providerProperties.url}")
 
-            // WRAP with TimeLimiter:
             val events = timeLimiter.executeSuspendFunction {
                 circuitBreaker.executeSuspendFunction {
                     retry.executeSuspendFunction {
@@ -73,19 +72,13 @@ class ProviderApiClient(
     private suspend fun fetchEventsFromProvider(): List<ProviderEventDto> = withContext(Dispatchers.IO) {
         try {
             logger.debug("Making HTTP call to provider API")
-
             val xmlContent = restTemplate.getForObject(providerProperties.url, String::class.java)
                 ?: throw ProviderApiException.invalidResponse("Empty response from provider")
-
             logger.debug("Received XML response, parsing...")
-
             val eventListResponse = xmlMapper.readValue(xmlContent, EventListResponseDto::class.java)
             val events = eventListResponse.toCleanEvents()
-
             logger.debug("Parsed ${events.size} online events from provider response")
-
             events
-
         } catch (e: Exception) {
             when (e) {
                 is ProviderApiException -> throw e
@@ -129,7 +122,7 @@ class ProviderApiClient(
     /**
      * Get circuit breaker state for monitoring
      */
-    fun getCircuitBreakerState(): String = circuitBreaker.state.name
+    fun getCircuitBreakerState(): CircuitBreaker.State = circuitBreaker.state
 
     /**
      * Get retry metrics for monitoring

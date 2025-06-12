@@ -15,6 +15,7 @@ class Event(
     val sellPeriod: DateRange?,         // sell_from/sell_to dates
     val soldOut: Boolean,
     val lastUpdated: Instant,           // When we last synced an event
+    val zones: List<Zone>,
     val version: Long = 1               // For optimistic locking
 ) {
     //Validations for the Event creation
@@ -44,7 +45,8 @@ class Event(
         newSellFrom: LocalDateTime,
         newSellTo: LocalDateTime,
         newSoldOut: Boolean = false,
-        newOrganizerCompanyId: String? = null
+        newOrganizerCompanyId: String? = null,
+        newZones: List<Zone>,
     ): Event {
         return Event(
             id = this.id,
@@ -57,6 +59,7 @@ class Event(
             sellPeriod = DateRange(newSellFrom, newSellTo),
             soldOut = newSoldOut,
             lastUpdated = Instant.now(),
+            zones = newZones,
             version = this.version + 1,
         )
     }
@@ -74,6 +77,7 @@ class Event(
             sellPeriod: DateRange? = null,
             soldOut: Boolean = false,
             lastUpdated: Instant = Instant.now(),
+            zones: List<Zone>,
             version: Long = 1,
         ): Event {
             return Event(
@@ -87,6 +91,7 @@ class Event(
                 sellPeriod = sellPeriod,
                 soldOut = soldOut,
                 lastUpdated = lastUpdated,
+                zones = zones,
                 version = version,
             )
         }
@@ -95,9 +100,12 @@ class Event(
         fun fromProviderData(
             id: EventId,
             providerEventId: String,
+            organizerCompanyId: String? = null,
+            sellPeriod: DateRange? = null,
+            soldOut: Boolean = false,
             title: String,
             date: DateRange,
-            zones: List<Zone> // You'll need to create this class
+            zones: List<Zone>,
         ): Event {
             val minPrice = zones.minOfOrNull { it.price } ?: BigDecimal.ZERO
             val maxPrice = zones.maxOfOrNull { it.price } ?: BigDecimal.ZERO
@@ -106,13 +114,16 @@ class Event(
             return createOnline(
                 id = id,
                 providerEventId = providerEventId,
+                organizerCompanyId = organizerCompanyId,
+                sellPeriod = sellPeriod,
+                soldOut = soldOut,
                 title = title,
                 date = date,
                 priceRange = priceRange,
+                zones = zones,
             )
         }
     }
-
 }
 
 // Zone class for calculating prices

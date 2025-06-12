@@ -17,6 +17,7 @@ class EventEntityMapper(
             DateRange(entity.sellPeriodFrom!!, entity.sellPeriodTo!!)
         } else null
 
+        val zones = entity.zones.map { zoneEntityMapper.toDomain(it) }
         return Event.createOnline(
             id = EventId.of(entity.id),
             title = entity.title,
@@ -27,7 +28,8 @@ class EventEntityMapper(
             sellPeriod = sellPeriod,
             soldOut = entity.soldOut,
             lastUpdated = entity.lastUpdated,
-            version = entity.version
+            zones = zones,
+            version = entity.version,
         )
     }
 
@@ -46,7 +48,7 @@ class EventEntityMapper(
             sellPeriodTo = domain.sellPeriod?.sellTo,
             soldOut = domain.soldOut,
             lastUpdated = domain.lastUpdated,
-            version = domain.version
+            version = domain.version,
         )
     }
 

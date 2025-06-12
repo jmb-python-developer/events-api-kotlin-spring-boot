@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 class EventRepositoryAdapter(
     private val eventJpaRepository: EventJpaRepository,
     private val eventEntityMapper: EventEntityMapper,
+    private val zoneEntityMapper: ZoneEntityMapper,
 ): EventRepository {
 
     private val logger = LoggerFactory.getLogger(EventRepositoryAdapter::class.java)
@@ -19,7 +20,9 @@ class EventRepositoryAdapter(
         logger.debug("Saving event with providerId: ${event.providerEventId}")
 
         //Use upsert query instead of retrieving first the entity
-        val entityToSave = eventEntityMapper.toEntity(event)
+        var entityToSave = eventEntityMapper.toEntity(event)
+        val zones = event.zones.map { zoneEntityMapper.toEntity(it, entityToSave) }
+        entityToSave.zones = zones
         val rowsAffected = eventJpaRepository.upsertEvent(entityToSave)
 
         logger.debug("Upsert affected $rowsAffected rows for provider ID: ${event.providerEventId}")

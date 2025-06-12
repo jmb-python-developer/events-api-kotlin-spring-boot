@@ -4,12 +4,12 @@ import java.time.Instant
 
 data class SyncJobResult(
     val success: Boolean,
-    val totalEvents: Int,
-    val successfulEvents: Int,
-    val failedEvents: Int,
-    val executionTimeMs: Long,
-    val startedAt: Instant,
-    val completedAt: Instant,
+    val totalEvents: Int = 0,
+    val successfulEvents: Int = 0,
+    val failedEvents: Int = 0,
+    val executionTimeMs: Long = 0,
+    val startedAt: Instant = Instant.now(),
+    val completedAt: Instant = Instant.now(),
     val errors: List<String> = emptyList()
 )
 
@@ -34,5 +34,4 @@ data class BatchResult(
     val eventsProcessed: Int,
     val successCount: Int,
     val errorCount: Int,
-    val errors: List<String> = emptyList()
 )
