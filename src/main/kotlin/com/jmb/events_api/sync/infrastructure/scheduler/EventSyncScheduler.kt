@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Component
 @ConditionalOnProperty(
@@ -18,13 +19,28 @@ class EventSyncScheduler(
 ) {
     private val logger = LoggerFactory.getLogger(EventSyncScheduler::class.java)
 
+    // Prevent overlapping executions
+    private val syncInProgress = AtomicBoolean(false)
+
     //Default to 10 secs if not configured in application.yml
-    @Scheduled(fixedDelayString = "\${fever.sync.interval:30000}")
+    @Scheduled(fixedDelayString = "\${fever.sync.interval}")
     fun scheduleEventSync() {
-        logger.info("Scheduler triggering ... ")
-        //Could be an async process in the future, depending on the volumes
-        runBlocking {
-            syncJobOrchestrator.orchestrateFullSync()
+        // Prevent overlapping sync operations
+        if (!syncInProgress.compareAndSet(false, true)) {
+            logger.warn("⚠️ Sync already in progress, skipping this execution")
+            return
+        }
+
+        try {
+            logger.info("Scheduler triggering sync...")
+            runBlocking {
+                syncJobOrchestrator.orchestrateFullSync()
+            }
+
+        } catch (e: Exception) {
+            logger.error("Scheduled sync failed", e)
+        } finally {
+            syncInProgress.set(false)
         }
     }
 }

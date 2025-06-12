@@ -46,6 +46,9 @@ dependencies {
 	// OpenAPI Spec
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
+	// Spring Retry
+	implementation("org.springframework.retry:spring-retry")
+
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	// Database
