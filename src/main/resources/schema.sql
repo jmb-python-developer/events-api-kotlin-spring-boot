@@ -31,3 +31,6 @@ CREATE TABLE IF NOT EXISTS zone (
 CREATE INDEX IF NOT EXISTS idx_event_provider_id ON event(provider_event_id);
 CREATE INDEX IF NOT EXISTS idx_event_sell_dates ON event(sell_from, sell_to);
 CREATE INDEX IF NOT EXISTS idx_zone_event_id ON zone(event_id);
+-- Nice to have ones, might not be used often
+CREATE INDEX IF NOT EXISTS idx_event_sell_mode ON event(sell_mode);
+CREATE INDEX IF NOT EXISTS idx_event_pricing ON event(price_range_min, price_range_max);

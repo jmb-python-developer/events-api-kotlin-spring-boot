@@ -97,3 +97,16 @@ management:
   health:
     circuitbreakers:
       enabled: true
+
+# OpenAPI/Swagger configuration
+# Add to your existing application.yml
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  info:
+    title: "Fever Events API"
+    description: "Events search API compliant with Fever specification"
+    version: "1.0.0"

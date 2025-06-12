@@ -1,0 +1,8 @@
+2025-06-12 11:20:50.435639+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"
+Syntax error in SQL statement "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"; SQL statement:
+CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) WHERE sell_mode = 'ONLINE' [42000-224]
+2025-06-12 11:21:38.048832+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"
+Syntax error in SQL statement "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"; SQL statement:
+CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) WHERE sell_mode = 'ONLINE' [42000-224]

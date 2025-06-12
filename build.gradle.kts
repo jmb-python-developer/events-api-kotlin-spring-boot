@@ -33,15 +33,18 @@ dependencies {
 	// XML processing
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 
-	// ✨ NEW: Resilience4j for Circuit Breaker and Retry
+	// Resilience4j for Circuit Breaker and Retry
 	implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
 	implementation("io.github.resilience4j:resilience4j-kotlin:2.2.0")
 	implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")
 	implementation("io.github.resilience4j:resilience4j-retry:2.2.0")
 
-	// ✨ NEW: Coroutines support for Kotlin suspend functions
+	// Coroutines support for Kotlin suspend functions
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+
+	// OpenAPI Spec
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
