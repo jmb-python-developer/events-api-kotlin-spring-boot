@@ -14,3 +14,7 @@ select z1_0.event_id,z1_0.zone_id,z1_0.capacity,z1_0.name,z1_0.numbered,z1_0.pri
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ZONES" no encontrada
 Table "ZONES" not found; SQL statement:
 select z1_0.event_id,z1_0.zone_id,z1_0.capacity,z1_0.name,z1_0.numbered,z1_0.price from zones z1_0 where z1_0.event_id=? [42102-224]
+2025-06-13 15:22:34.130343+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "[*]ZONE"
+Syntax error in SQL statement "[*]ZONE"; SQL statement:
+ZONE [42000-224]
