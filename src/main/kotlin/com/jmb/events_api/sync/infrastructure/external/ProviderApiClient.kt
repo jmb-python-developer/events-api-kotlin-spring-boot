@@ -74,6 +74,7 @@ class ProviderApiClient(
             logger.debug("Making HTTP call to provider API")
             val xmlContent = restTemplate.getForObject(providerProperties.url, String::class.java)
                 ?: throw ProviderApiException.invalidResponse("Empty response from provider")
+
             logger.debug("Received XML response, parsing...")
             val planListResponse = xmlMapper.readValue(xmlContent, PlanListResponseDto::class.java)
             val events = planListResponse.toCleanEvents()
@@ -102,20 +103,6 @@ class ProviderApiClient(
                     throw ProviderApiException.unexpectedError(e)
                 }
             }
-        }
-    }
-
-    /**
-     * Health check method for monitoring
-     */
-    suspend fun healthCheck(): Boolean = withContext(Dispatchers.IO) {
-        try {
-            // Simple connectivity test
-            val response = restTemplate.optionsForAllow(providerProperties.url)
-            true
-        } catch (e: Exception) {
-            logger.warn("Provider health check failed", e)
-            false
         }
     }
 
