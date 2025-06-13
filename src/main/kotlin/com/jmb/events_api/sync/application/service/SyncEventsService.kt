@@ -4,8 +4,8 @@ import com.jmb.events_api.shared.domain.event.DomainEventPublisher
 import com.jmb.events_api.sync.domain.event.EventSyncedEvent
 import com.jmb.events_api.sync.domain.event.EventUpdatedEvent
 import com.jmb.events_api.sync.domain.event.SyncFailedEvent
+import com.jmb.events_api.sync.domain.model.DateRange
 import com.jmb.events_api.sync.domain.model.Event
-import com.jmb.events_api.sync.domain.model.PriceRange
 import com.jmb.events_api.sync.domain.repository.EventRepository
 import org.slf4j.LoggerFactory
 import org.springframework.dao.OptimisticLockingFailureException
@@ -105,7 +105,7 @@ class SyncEventsService(
      */
     private suspend fun updateExistingEvent(existingEvent: Event, event: Event): Event {
         // Detect changes for domain events
-        val hasChanges = detectSignificantChanges(existingEvent, event, event.priceRange)
+        val hasChanges = detectAndLogChanges(existingEvent, event)
 
         if (!hasChanges) {
             logger.debug("No significant changes for event: ${event.title}")
@@ -117,8 +117,8 @@ class SyncEventsService(
             newTitle = event.title,
             date = event.date,
             newPriceRange = event.priceRange,
-            newSellFrom = event.date.sellFrom,
-            newSellTo = event.date.sellTo,
+            newSellFrom = event.sellPeriod?.from ?: event.date.from,
+            newSellTo = event.sellPeriod?.to ?: event.date.to,
             newSoldOut = event.soldOut,
             newOrganizerCompanyId = event.organizerCompanyId,
             newZones = event.zones,
@@ -154,15 +154,68 @@ class SyncEventsService(
      */
     private fun detectSignificantChanges(
         existingEvent: Event,
-        event: Event,
-        newPriceRange: PriceRange
+        newEvent: Event
     ): Boolean {
-        return existingEvent.title != event.title ||
-                existingEvent.priceRange.min != newPriceRange.min ||
-                existingEvent.priceRange.max != newPriceRange.max ||
-                existingEvent.soldOut != event.soldOut ||
-                existingEvent.organizerCompanyId != event.organizerCompanyId ||
-                existingEvent.date.sellFrom != event.date.sellFrom ||
-                existingEvent.date.sellTo != event.date.sellTo
+        return existingEvent.title != newEvent.title ||
+                existingEvent.priceRange.min.compareTo(newEvent.priceRange.min) != 0 ||
+                existingEvent.priceRange.max.compareTo(newEvent.priceRange.max) != 0 ||
+                existingEvent.soldOut != newEvent.soldOut ||
+                existingEvent.organizerCompanyId != newEvent.organizerCompanyId ||
+                existingEvent.date != newEvent.date ||
+                existingEvent.sellPeriod != newEvent.sellPeriod
+    }
+
+    private fun detectAndLogChanges(
+        existingEvent: Event,
+        newEvent: Event
+    ): Boolean {
+        val changes = mutableListOf<String>()
+
+        // Title changes
+        if (existingEvent.title != newEvent.title) {
+            changes.add("title: '${existingEvent.title}' → '${newEvent.title}'")
+        }
+
+        // Price changes (with precision handling)
+        if (!existingEvent.priceRange.isEquivalentTo(newEvent.priceRange)) {
+            changes.add("price: ${existingEvent.priceRange.min}-${existingEvent.priceRange.max} → ${newEvent.priceRange.min}-${newEvent.priceRange.max}")
+        }
+
+        // Date changes (with minute precision)
+        if (!existingEvent.date.isEquivalentTo(newEvent.date)) {
+            changes.add("dates: ${existingEvent.date.from} to ${existingEvent.date.to} → ${newEvent.date.from} to ${newEvent.date.to}")
+        }
+
+        // Sold out status
+        if (existingEvent.soldOut != newEvent.soldOut) {
+            changes.add("soldOut: ${existingEvent.soldOut} → ${newEvent.soldOut}")
+        }
+
+        // Organizer company
+        if (existingEvent.organizerCompanyId != newEvent.organizerCompanyId) {
+            changes.add("organizer: '${existingEvent.organizerCompanyId}' → '${newEvent.organizerCompanyId}'")
+        }
+
+        // Sell period changes
+        if (!sellPeriodsEquivalent(existingEvent.sellPeriod, newEvent.sellPeriod)) {
+            changes.add("sellPeriod: ${existingEvent.sellPeriod} → ${newEvent.sellPeriod}")
+        }
+
+        // Log changes if any detected
+        if (changes.isNotEmpty()) {
+            logger.info("📝 Event changes detected for '${newEvent.title}' (${newEvent.providerEventId}): ${changes.joinToString(", ")}")
+            return true
+        }
+
+        logger.debug("✅ No significant changes for '${newEvent.title}' (${newEvent.providerEventId})")
+        return false
+    }
+
+    private fun sellPeriodsEquivalent(period1: DateRange?, period2: DateRange?): Boolean {
+        return when {
+            period1 == null && period2 == null -> true
+            period1 == null || period2 == null -> false
+            else -> period1.isEquivalentTo(period2)
+        }
     }
 }

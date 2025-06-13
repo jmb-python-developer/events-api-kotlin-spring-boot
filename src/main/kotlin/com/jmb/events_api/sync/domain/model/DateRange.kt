@@ -2,18 +2,29 @@ package com.jmb.events_api.sync.domain.model
 
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 data class DateRange(
-    val sellFrom: LocalDateTime,
-    val sellTo: LocalDateTime,
+    val from: LocalDateTime,
+    val to: LocalDateTime,
 ) {
     //validations
     init {
-        require(sellFrom.isBefore(sellTo))
+        require(from.isBefore(to))
     }
 
     fun overlapsWith(other: DateRange): Boolean {
-        return this.sellFrom < other.sellTo && this.sellTo >= other.sellFrom
+        return this.from < other.to && this.to >= other.from
+    }
+
+    /**
+     * Check if two date ranges are equivalent (ignoring second-level differences)
+     */
+    fun isEquivalentTo(other: DateRange): Boolean {
+        return this.from.truncatedTo(ChronoUnit.MINUTES) ==
+                other.from.truncatedTo(ChronoUnit.MINUTES) &&
+                this.to.truncatedTo(ChronoUnit.MINUTES) ==
+                other.to.truncatedTo(ChronoUnit.MINUTES)
     }
 
     companion object {

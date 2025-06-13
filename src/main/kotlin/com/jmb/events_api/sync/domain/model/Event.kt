@@ -28,7 +28,7 @@ class Event(
     fun isCurrentlyOnSale(): Boolean {
         val now = Instant.now()
         return !soldOut && sellPeriod?.let {
-            DateRange.isInPeriodRange(now, it.sellFrom, it.sellTo)
+            DateRange.isInPeriodRange(now, it.from, it.to)
         } == true
     }
 
