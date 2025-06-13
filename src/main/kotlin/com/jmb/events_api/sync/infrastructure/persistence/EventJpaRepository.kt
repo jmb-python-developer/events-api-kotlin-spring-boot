@@ -12,26 +12,6 @@ import java.time.LocalDateTime
 interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     fun findByProviderEventId(eventProviderId: String): EventJpaEntity?
 
-    @Modifying
-    @Query(
-        """
-        MERGE INTO event (
-            id, provider_event_id, title, sell_from, sell_to,
-            price_range_min, price_range_max, sell_mode,
-            organizer_company_id, sell_period_from, sell_period_to,
-            sold_out, last_update, version
-        ) VALUES (
-            :#{#entity.id}, :#{#entity.providerEventId}, :#{#entity.title},
-            :#{#entity.sellFrom}, :#{#entity.sellTo},
-            :#{#entity.priceRangeMin}, :#{#entity.priceRangeMax}, :#{#entity.sellMode},
-            :#{#entity.organizerCompanyId}, :#{#entity.sellPeriodFrom}, :#{#entity.sellPeriodTo},
-            :#{#entity.soldOut}, :#{#entity.lastUpdated}, :#{#entity.version}
-        )
-    """, nativeQuery = true
-    )
-    fun upsertEvent(@Param("entity") entity: EventJpaEntity): Int
-
-
     //Named query methods to search based on business functionality as main criteria
     @Query(
         """

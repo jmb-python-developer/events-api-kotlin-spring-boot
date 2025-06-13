@@ -79,7 +79,7 @@ fever:
     interval: 10000                    # How often to run sync
     batch-size: 100                 # Events per batch
     max-retries: 3                  # Max retry attempts
-    enabled: true                   # Enable/disable scheduling
+    enabled: false                   # Enable/disable scheduling
 
 # Clean logging
 logging:

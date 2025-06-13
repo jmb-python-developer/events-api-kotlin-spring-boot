@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.sql.DataSource
 
 @Component
 @ConditionalOnProperty(
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 )
 class EventSyncScheduler(
     private val syncJobOrchestrator: SyncJobOrchestrator,
+    private val dataSource: DataSource,
     @Value("\${fever.sync.enabled}") private val syncingEnabled: Boolean
 ) {
     private val logger = LoggerFactory.getLogger(EventSyncScheduler::class.java)
@@ -27,25 +29,47 @@ class EventSyncScheduler(
     //Default to 10 secs if not configured in application.yml
     @Scheduled(fixedDelayString = "\${fever.sync.interval}")
     fun scheduleEventSync() {
-        // Prevent overlapping sync operations
         if (!syncInProgress.compareAndSet(false, true)) {
             logger.warn("Sync already in progress, skipping this execution")
             return
         }
 
         try {
-            logger.info("Scheduler triggering sync...")
-            if (syncingEnabled) {
-                runBlocking {
-                    syncJobOrchestrator.orchestrateFullSync()
+            logger.info("🔄 Scheduler triggering sync...")
+
+            if (!syncingEnabled) {
+                logger.info("⏸️ Sync process is disabled")
+                return
+            }
+
+            // Simple database check
+            if (!isDatabaseReady()) {
+                logger.warn("⚠️ Database not ready - skipping sync")
+                return
+            }
+
+            runBlocking {
+                val result = syncJobOrchestrator.orchestrateFullSync()
+                if (result.success) {
+                    logger.info("Sync completed: ${result.successfulEvents}/${result.totalEvents} events")
+                } else {
+                    logger.warn("Sync failed: ${result.errors.joinToString(", ")}")
                 }
-            } else {
-                logger.info("Sync Process is disabled as per system properties")
             }
         } catch (e: Exception) {
             logger.error("Scheduled sync failed", e)
         } finally {
             syncInProgress.set(false)
+        }
+    }
+
+    // Simple database readiness check
+    private fun isDatabaseReady(): Boolean {
+        return try {
+            dataSource.connection.use { it.isValid(3) }
+        } catch (e: Exception) {
+            logger.warn("Database check failed: ${e.message}")
+            false
         }
     }
 }

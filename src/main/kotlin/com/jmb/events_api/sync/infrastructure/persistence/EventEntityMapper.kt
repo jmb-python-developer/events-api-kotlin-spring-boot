@@ -52,10 +52,10 @@ class EventEntityMapper(
         )
     }
 
-    fun updateEntity(entity: EventJpaEntity, domain: Event): EventJpaEntity {
+    fun toEntityForUpdate(domain: Event, existingEntity: EventJpaEntity): EventJpaEntity {
         return EventJpaEntity(
-            id = entity.id,
-            providerEventId = entity.providerEventId,
+            id = existingEntity.id,
+            providerEventId = existingEntity.providerEventId,
             title = domain.title,
             sellFrom = domain.date.from,
             sellTo = domain.date.to,
@@ -66,8 +66,8 @@ class EventEntityMapper(
             sellPeriodFrom = domain.sellPeriod?.from,
             sellPeriodTo = domain.sellPeriod?.to,
             soldOut = domain.soldOut,
-            lastUpdated = Instant.now(),
-            version = domain.version,
+            lastUpdated = domain.lastUpdated,
+            version = existingEntity.version, //Needed for JPA Optimistic Locking and Version automanagement
         )
     }
 }
