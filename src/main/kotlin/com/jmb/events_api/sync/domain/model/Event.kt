@@ -107,9 +107,13 @@ class Event(
             date: DateRange,
             zones: List<Zone>,
         ): Event {
-            val minPrice = zones.minOfOrNull { it.price } ?: BigDecimal.ZERO
-            val maxPrice = zones.maxOfOrNull { it.price } ?: BigDecimal.ZERO
-            val priceRange = PriceRange(minPrice, maxPrice)
+            val priceRange = if (zones.isEmpty()) {
+                throw IllegalArgumentException("Event must have at least one zone")
+            } else {
+                val minPrice = zones.minOf { it.price }
+                val maxPrice = zones.maxOf { it.price }
+                PriceRange(minPrice, maxPrice)
+            }
 
             return createOnline(
                 id = id,

@@ -13,15 +13,36 @@ class SyncJobOrchestrator(
     private val logger = LoggerFactory.getLogger(SyncJobOrchestrator::class.java)
 
     suspend fun orchestrateFullSync(): SyncJobResult {
-        // 1. Check circuit breaker state first
-        if (circuitBreakerCheck() == CircuitBreaker.State.CLOSED) {
-            // 2. Fetch events from provider - Actual External API call
-            val events = providerApiClient.fetchEvents()
-            // 3. Process in batches using SyncBatchProcessor
-            syncBatchProcessor.processBatch(events = events, batchSize = 20)
-            // 4. Return comprehensive result with metrics
+        val state = circuitBreakerCheck()
+
+        return when (state) {
+            CircuitBreaker.State.OPEN,
+            CircuitBreaker.State.FORCED_OPEN -> {
+                logger.warn("Circuit breaker is $state - skipping sync")
+                SyncJobResult(success = false, errors = listOf("Circuit Breaker is $state"))
+            }
+
+            CircuitBreaker.State.CLOSED,
+            CircuitBreaker.State.HALF_OPEN,
+            CircuitBreaker.State.DISABLED,
+            CircuitBreaker.State.METRICS_ONLY -> {
+                logger.info("Circuit breaker is $state - proceeding with sync")
+                try {
+                    val events = providerApiClient.fetchEvents()
+                    val batchResult = syncBatchProcessor.processBatch(events, batchSize = 20)
+
+                    SyncJobResult(
+                        success = true,
+                        totalEvents = batchResult.totalEvents,
+                        successfulEvents = batchResult.successfulEvents,
+                        failedEvents = batchResult.failedEvents
+                    )
+                } catch (e: Exception) {
+                    logger.error("Sync failed in state $state", e)
+                    SyncJobResult(success = false, errors = listOf(e.message ?: "Unknown error"))
+                }
+            }
         }
-        return SyncJobResult(success = false, errors = listOf("Circuit Breaker is OPEN"))
     }
 
     fun circuitBreakerCheck(): CircuitBreaker.State {
