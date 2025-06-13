@@ -20,7 +20,7 @@ class ZoneEntityMapper {
         val uniqueZoneId = "${planId}-zone-${index}"
 
         return ZoneJpaEntity(
-            zoneId = domain.id,
+            zoneId = uniqueZoneId,
             name = domain.name,
             price = domain.price,
             capacity = domain.capacity,
