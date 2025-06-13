@@ -2,7 +2,6 @@ package com.jmb.events_api.sync.infrastructure.persistence
 
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -16,9 +15,9 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     @Query(
         """
                SELECT e FROM EventJpaEntity e
-                WHERE e.sellFrom >= :startDate
-                AND e.sellTo <= :endDate
-                ORDER BY e.sellFrom ASC 
+                WHERE e.planStartDate >= :startDate
+                AND e.planEndDate <= :endDate
+                ORDER BY e.planStartDate ASC 
     """
     )
     fun findEventsByDateRange(
@@ -30,9 +29,9 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     @Query(
         """
         SELECT e FROM EventJpaEntity e 
-        WHERE e.sellFrom >= :startDate AND e.sellTo <= :endDate
+        WHERE e.planStartDate >= :startDate AND e.planEndDate <= :endDate
         AND e.soldOut = false
-        ORDER BY e.sellFrom ASC
+        ORDER BY e.planStartDate ASC
     """
     )
     fun findAvailableEventsByDateRange(
@@ -44,7 +43,7 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, String> {
     @Query(
         """
             SELECT COUNT(e.id) FROM EventJpaEntity e
-            WHERE e.sellFrom >= :startDate AND e.sellTo <= :endDate
+            WHERE e.planStartDate >= :startDate AND e.planEndDate <= :endDate
             AND e.soldOut = false
         """
     )

@@ -18,7 +18,7 @@ class SyncJobOrchestrator(
         return when (state) {
             CircuitBreaker.State.OPEN,
             CircuitBreaker.State.FORCED_OPEN -> {
-                logger.warn("Circuit breaker is $state - skipping sync")
+                logger.warn("Circuit breaker is $state - skipping plan sync")
                 SyncJobResult(success = false, errors = listOf("Circuit Breaker is $state"))
             }
 
@@ -26,10 +26,10 @@ class SyncJobOrchestrator(
             CircuitBreaker.State.HALF_OPEN,
             CircuitBreaker.State.DISABLED,
             CircuitBreaker.State.METRICS_ONLY -> {
-                logger.info("Circuit breaker is $state - proceeding with sync")
+                logger.info("Circuit breaker is $state - proceeding with plan sync")
                 try {
-                    val events = providerApiClient.fetchEvents()
-                    val batchResult = syncBatchProcessor.processBatch(events, batchSize = 20)
+                    val plans = providerApiClient.fetchEvents() // Still maps to events internally
+                    val batchResult = syncBatchProcessor.processBatch(plans, batchSize = 20)
 
                     SyncJobResult(
                         success = true,
@@ -38,7 +38,7 @@ class SyncJobOrchestrator(
                         failedEvents = batchResult.failedEvents
                     )
                 } catch (e: Exception) {
-                    logger.error("Sync failed in state $state", e)
+                    logger.error("Plan sync failed in state $state", e)
                     SyncJobResult(success = false, errors = listOf(e.message ?: "Unknown error"))
                 }
             }
@@ -49,17 +49,16 @@ class SyncJobOrchestrator(
         val state = providerApiClient.getCircuitBreakerState()
         when(state) {
             CircuitBreaker.State.CLOSED -> {
-                logger.info("Circuit breaker healthy - proceeding with sync")
+                logger.info("Circuit breaker healthy - proceeding with plan sync")
             }
             CircuitBreaker.State.OPEN -> {
-                logger.warn("Circuit breaker OPEN - skipping sync")
+                logger.warn("Circuit breaker OPEN - skipping plan sync")
             }
             CircuitBreaker.State.HALF_OPEN -> {
-                logger.info("Circuit breaker testing recovery")
+                logger.info("Circuit breaker testing recovery for plan sync")
             }
             else -> logger.info("Other States of Circuit Breaker are untracked")
         }
         return state
     }
-
 }

@@ -5,7 +5,7 @@ import com.jmb.events_api.sync.application.dto.ProviderEventDto
 import com.jmb.events_api.sync.domain.port.out.ProviderClientPort
 import com.jmb.events_api.sync.domain.port.out.ProviderProperties
 import com.jmb.events_api.sync.infrastructure.config.ProviderConfig
-import com.jmb.events_api.sync.infrastructure.external.dto.EventListResponseDto
+import com.jmb.events_api.sync.infrastructure.external.dto.PlanListResponseDto
 import com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
@@ -37,31 +37,31 @@ class ProviderApiClient(
         val startTime = Instant.now()
 
         return try {
-            logger.info("Fetching events from provider: ${providerProperties.url}")
+            logger.info("Fetching plans from provider: ${providerProperties.url}")
 
             val events = timeLimiter.executeSuspendFunction {
                 circuitBreaker.executeSuspendFunction {
                     retry.executeSuspendFunction {
-                        fetchEventsFromProvider()
+                        fetchPlansFromProvider()
                     }
                 }
             }
 
             val duration = java.time.Duration.between(startTime, Instant.now())
-            logger.info("Successfully fetched ${events.size} events in ${duration.toMillis()}ms")
+            logger.info("Successfully fetched ${events.size} plans in ${duration.toMillis()}ms")
 
             events
 
         } catch (e: Exception) {
             val duration = java.time.Duration.between(startTime, Instant.now())
-            logger.error("Failed to fetch events after ${duration.toMillis()}ms", e)
+            logger.error("Failed to fetch plans after ${duration.toMillis()}ms", e)
 
             throw when (e) {
                 is ProviderApiException -> e
                 is io.github.resilience4j.circuitbreaker.CallNotPermittedException -> {
                     ProviderApiException.circuitBreakerOpen("Circuit breaker is open - provider may be down")
                 }
-                is java.util.concurrent.TimeoutException -> {  // ADD THIS
+                is java.util.concurrent.TimeoutException -> {
                     ProviderApiException.timeout(e)
                 }
                 else -> ProviderApiException.networkError(e)
@@ -69,15 +69,15 @@ class ProviderApiClient(
         }
     }
 
-    private suspend fun fetchEventsFromProvider(): List<ProviderEventDto> = withContext(Dispatchers.IO) {
+    private suspend fun fetchPlansFromProvider(): List<ProviderEventDto> = withContext(Dispatchers.IO) {
         try {
             logger.debug("Making HTTP call to provider API")
             val xmlContent = restTemplate.getForObject(providerProperties.url, String::class.java)
                 ?: throw ProviderApiException.invalidResponse("Empty response from provider")
             logger.debug("Received XML response, parsing...")
-            val eventListResponse = xmlMapper.readValue(xmlContent, EventListResponseDto::class.java)
-            val events = eventListResponse.toCleanEvents()
-            logger.debug("Parsed ${events.size} online events from provider response")
+            val planListResponse = xmlMapper.readValue(xmlContent, PlanListResponseDto::class.java)
+            val events = planListResponse.toCleanEvents()
+            logger.debug("Parsed ${events.size} online plans from provider response")
             events
         } catch (e: Exception) {
             when (e) {
@@ -123,13 +123,4 @@ class ProviderApiClient(
      * Get circuit breaker state for monitoring
      */
     fun getCircuitBreakerState(): CircuitBreaker.State = circuitBreaker.state
-
-    /**
-     * Get retry metrics for monitoring
-     */
-    fun getRetryMetrics(): Map<String, Any> = mapOf(
-        "maxAttempts" to retry.retryConfig.maxAttempts,
-        "waitDuration" to (retry.retryConfig.intervalFunction?.apply(1) ?: 0L),
-        "name" to retry.name
-    )
 }

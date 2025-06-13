@@ -9,14 +9,14 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@JacksonXmlRootElement(localName = "eventList")
-data class EventListResponseDto(
+@JacksonXmlRootElement(localName = "planList")
+data class PlanListResponseDto(
     @JacksonXmlProperty(localName = "output")
     val output: OutputDto?
 ) {
     // Extension function for direct conversion with business logic
     fun toCleanEvents(): List<ProviderEventDto> =
-        output?.baseEvents
+        output?.basePlans
             ?.filter { it.sellMode.equals("online", ignoreCase = true) }
             ?.map { it.toCleanDto() }
             ?: emptyList()
@@ -24,17 +24,16 @@ data class EventListResponseDto(
 
 data class OutputDto(
     @JacksonXmlElementWrapper(useWrapping = false)
-    @JacksonXmlProperty(localName = "base_event")
-    val baseEvents: List<BaseEventDto> = emptyList()
+    @JacksonXmlProperty(localName = "base_plan")
+    val basePlans: List<BasePlanDto> = emptyList()
 )
 
+data class PlanDetailsDto(
+    @JacksonXmlProperty(isAttribute = true, localName = "plan_start_date")
+    val planStartDate: String,
 
-data class EventDetailsDto(
-    @JacksonXmlProperty(isAttribute = true, localName = "event_start_date")
-    val eventStartDate: String,
-
-    @JacksonXmlProperty(isAttribute = true, localName = "event_end_date")
-    val eventEndDate: String,
+    @JacksonXmlProperty(isAttribute = true, localName = "plan_end_date")
+    val planEndDate: String,
 
     @JacksonXmlProperty(isAttribute = true, localName = "sell_from")
     val sellFrom: String,
@@ -50,11 +49,10 @@ data class EventDetailsDto(
     val zones: List<ZoneRawDto> = emptyList()
 )
 
-
 // Extension Functions Approach - Add these to the raw DTOs
-data class BaseEventDto(
-    @JacksonXmlProperty(isAttribute = true, localName = "base_event_id")
-    val baseEventId: String,
+data class BasePlanDto(
+    @JacksonXmlProperty(isAttribute = true, localName = "base_plan_id")
+    val basePlanId: String,
 
     @JacksonXmlProperty(isAttribute = true, localName = "sell_mode")
     val sellMode: String,
@@ -65,8 +63,8 @@ data class BaseEventDto(
     @JacksonXmlProperty(isAttribute = true, localName = "organizer_company_id")
     val organizerCompanyId: String?,
 
-    @JacksonXmlProperty(localName = "event")
-    val event: EventDetailsDto
+    @JacksonXmlProperty(localName = "plan")
+    val plan: PlanDetailsDto
 ) {
     companion object {
         private val PROVIDER_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -75,21 +73,21 @@ data class BaseEventDto(
     // Extension function for direct conversion
     fun toCleanDto(): ProviderEventDto {
         return ProviderEventDto(
-            baseEventId = baseEventId,
+            baseEventId = basePlanId, // Map base_plan_id to baseEventId
             title = title,
             sellMode = sellMode,
             organizerCompanyId = organizerCompanyId,
-            eventStartDate = LocalDateTime.parse(event.eventStartDate, PROVIDER_DATE_FORMAT),
-            eventEndDate = LocalDateTime.parse(event.eventEndDate, PROVIDER_DATE_FORMAT),
-            sellFrom = LocalDateTime.parse(event.sellFrom, PROVIDER_DATE_FORMAT),
-            sellTo = LocalDateTime.parse(event.sellTo, PROVIDER_DATE_FORMAT),
-            soldOut = event.soldOut.toBoolean(),
-            zones = event.zones.map { it.toCleanDto() }
+            eventStartDate = LocalDateTime.parse(plan.planStartDate, PROVIDER_DATE_FORMAT),
+            eventEndDate = LocalDateTime.parse(plan.planEndDate, PROVIDER_DATE_FORMAT),
+            sellFrom = LocalDateTime.parse(plan.sellFrom, PROVIDER_DATE_FORMAT),
+            sellTo = LocalDateTime.parse(plan.sellTo, PROVIDER_DATE_FORMAT),
+            soldOut = plan.soldOut.toBoolean(),
+            zones = plan.zones.map { it.toCleanDto() }
         )
     }
 }
 
-// Extension for zones
+// Extension for zones (unchanged)
 data class ZoneRawDto(
     @JacksonXmlProperty(isAttribute = true, localName = "zone_id")
     val zoneId: String,

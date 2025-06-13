@@ -26,7 +26,7 @@ class EventQueryAdapter(
         availableOnly: Boolean,
         maxResults: Int
     ): List<EventResponseDto> {
-        logger.debug("Querying events from {} to {} (availableOnly: {})", startDate, endDate, availableOnly)
+        logger.debug("Querying plans from {} to {} (availableOnly: {})", startDate, endDate, availableOnly)
 
         val pageable = PageRequest.of(0, maxResults)
 
@@ -40,13 +40,13 @@ class EventQueryAdapter(
             EventResponseDto.fromDomain(
                 eventId = entity.id,
                 title = entity.title,
-                startDateTime = entity.sellFrom,
-                endDateTime = entity.sellTo,
+                startDateTime = entity.planStartDate,  // Use plan timing for display
+                endDateTime = entity.planEndDate,      // Use plan timing for display
                 minPrice = entity.priceRangeMin,
                 maxPrice = entity.priceRangeMax
             )
         }
-        logger.debug("Found ${events.size} events")
+        logger.debug("Found ${events.size} plans")
         return events
     }
 
@@ -56,8 +56,8 @@ class EventQueryAdapter(
             EventResponseDto.fromDomain(
                 eventId = it.id,
                 title = it.title,
-                startDateTime = it.sellFrom,
-                endDateTime = it.sellTo,
+                startDateTime = it.planStartDate,  // Use plan timing for display
+                endDateTime = it.planEndDate,      // Use plan timing for display
                 minPrice = it.priceRangeMin,
                 maxPrice = it.priceRangeMax
             )
@@ -69,7 +69,7 @@ class EventQueryAdapter(
         endDate: LocalDateTime
     ): Long {
         val count = eventJpaRepository.countEventsByDateRange(startDate, endDate)
-        logger.debug("Number of events from {} to {}: {} ", startDate, endDate, count)
+        logger.debug("Number of plans from {} to {}: {} ", startDate, endDate, count)
         return count
     }
 
@@ -82,13 +82,13 @@ class EventQueryAdapter(
             EventResponseDto.fromDomain(
                 eventId = entity.id,
                 title = entity.title,
-                startDateTime = entity.sellFrom,
-                endDateTime = entity.sellTo,
+                startDateTime = entity.planStartDate,  // Use plan timing for display
+                endDateTime = entity.planEndDate,      // Use plan timing for display
                 minPrice = entity.priceRangeMin,
                 maxPrice = entity.priceRangeMax
             )
         }
-        logger.debug("Found ${events.size} events within price rante")
+        logger.debug("Found ${events.size} plans within price range")
         return events
     }
 }

@@ -17,18 +17,18 @@ class SyncMetricsHandler {
 
     @EventListener
     fun handleEventSynced(event: EventSyncedEvent) {
-        logger.info("Event Synced: ${event.title} (ID: ${event.eventEntityId.value})")
+        logger.info("Plan Synced: ${event.title} (ID: ${event.eventEntityId.value})")
         // Here you could integrate with Micrometer metrics
-        // meterRegistry.counter("events.synced").increment()
+        // meterRegistry.counter("plans.synced").increment()
     }
 
     @EventListener
     fun handleEventUpdated(event: EventUpdatedEvent) {
-        logger.info("Event updated: ${event.eventEntityId.value}, price changed: ${event.newPriceRange}")
+        logger.info("Plan updated: ${event.eventEntityId.value}, price changed: ${event.newPriceRange}")
     }
 
     @EventListener
     fun handleSyncFailed(event: SyncFailedEvent) {
-        logger.error("Sync failed for provider ID ${event.providerEventId}: ${event.failureReason}")
+        logger.error("Sync failed for provider plan ID ${event.providerEventId}: ${event.failureReason}")
     }
 }

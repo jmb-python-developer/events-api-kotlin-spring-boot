@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/eventsdb
+    url: jdbc:h2:file:./data/plansdb  # Updated database name
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -71,13 +71,13 @@ resilience4j:
 # Provider Configuration
 fever:
   provider:
-    url: http://127.0.0.1:3001/api/events # "http://provider.code-challenge.feverup.com/api/events"
+    url: http://127.0.0.1:3001/api/events # Updated to point to new plan endpoint
     timeout: 5s
     retry-attempts: 3
     retry-delay: 500ms
   sync:
-    interval: 10000                    # How often to run sync
-    batch-size: 100                 # Events per batch
+    interval: 10000                    # How often to run plan sync
+    batch-size: 100                 # Plans per batch
     max-retries: 3                  # Max retry attempts
     enabled: false                   # Enable/disable scheduling
 
@@ -104,7 +104,6 @@ management:
       enabled: true
 
 # OpenAPI/Swagger configuration
-# Add to your existing application.yml
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -113,5 +112,5 @@ springdoc:
     operationsSorter: method
   info:
     title: "Fever Events API"
-    description: "Events search API compliant with Fever specification"
+    description: "Events search API compliant with Fever specification (powered by provider plans)"
     version: "1.0.0"

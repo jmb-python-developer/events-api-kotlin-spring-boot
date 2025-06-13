@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Contains business logic to sync events by calling the necessary ports. Called by Infrastructure objects.
+ * Contains business logic to sync plans by calling the necessary ports. Called by Infrastructure objects.
  *
  * Triggering flow:
  *
@@ -42,8 +42,8 @@ class SyncEventsService(
     }
 
     /**
-     * Process single event with optimistic locking and retry mechanism
-     * Called by SyncBatchProcessor for each event
+     * Process single plan with optimistic locking and retry mechanism
+     * Called by SyncBatchProcessor for each plan
      */
     @Retryable(
         value = [OptimisticLockingFailureException::class],
@@ -52,22 +52,22 @@ class SyncEventsService(
     )
     private suspend fun processEvent(event: Event): Event? {
         return try {
-            // Check if event already exists
+            // Check if plan already exists
             val existingEvent = eventRepository.findByProviderId(event.providerEventId)
 
             if (existingEvent != null) {
-                // Update existing event
+                // Update existing plan
                 updateExistingEvent(existingEvent, event)
             } else {
-                // Create new event
+                // Create new plan
                 createNewEvent(event)
             }
 
         } catch (e: OptimisticLockingFailureException) {
-            logger.warn("Optimistic locking failure for event ${event.providerEventId}, retrying...")
+            logger.warn("Optimistic locking failure for plan ${event.providerEventId}, retrying...")
             throw e // Will trigger retry functionality
         } catch (e: Exception) {
-            logger.error("Failed to process event ${event.providerEventId}", e)
+            logger.error("Failed to process plan ${event.providerEventId}", e)
             // Publish failure event
             domainEventPublisher.publish(
                 SyncFailedEvent(
@@ -96,19 +96,19 @@ class SyncEventsService(
                 version = savedEvent.version
             )
         )
-        logger.debug("Created new event: {} ({})", savedEvent.title, savedEvent.providerEventId)
+        logger.debug("Created new plan: {} ({})", savedEvent.title, savedEvent.providerEventId)
         return savedEvent
     }
 
     /**
-     * Update existing event with change detection and domain events
+     * Update existing plan with change detection and domain events
      */
     private suspend fun updateExistingEvent(existingEvent: Event, event: Event): Event {
         // Detect changes for domain events
         val hasChanges = detectAndLogChanges(existingEvent, event)
 
         if (!hasChanges) {
-            logger.debug("No significant changes for event: ${event.title}")
+            logger.debug("No significant changes for plan: ${event.title}")
             return existingEvent
         }
 
@@ -145,7 +145,7 @@ class SyncEventsService(
                 newOrganizerCompanyId = savedEvent.organizerCompanyId
             )
         )
-        logger.debug("Updated event: ${event.title} (${event.providerEventId})")
+        logger.debug("Updated plan: ${event.title} (${event.providerEventId})")
         return savedEvent
     }
 
@@ -203,11 +203,11 @@ class SyncEventsService(
 
         // Log changes if any detected
         if (changes.isNotEmpty()) {
-            logger.info("📝 Event changes detected for '${newEvent.title}' (${newEvent.providerEventId}): ${changes.joinToString(", ")}")
+            logger.info("📝 Plan changes detected for '${newEvent.title}' (${newEvent.providerEventId}): ${changes.joinToString(", ")}")
             return true
         }
 
-        logger.debug("✅ No significant changes for '${newEvent.title}' (${newEvent.providerEventId})")
+        logger.debug("✅ No significant changes for plan '${newEvent.title}' (${newEvent.providerEventId})")
         return false
     }
 

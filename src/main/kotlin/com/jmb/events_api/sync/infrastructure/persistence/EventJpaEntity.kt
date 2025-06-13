@@ -17,12 +17,13 @@ import java.time.LocalDateTime
 class EventJpaEntity(
     @Id
     val id: String,
-    val providerEventId: String,
+    @Column(name = "provider_event_id")
+    val providerEventId: String,  // Maps to base_plan_id from provider
     val title: String,
-    @Column(name = "sell_from")
-    val sellFrom: LocalDateTime,
-    @Column(name = "sell_to")
-    val sellTo: LocalDateTime,
+    @Column(name = "plan_start_date")
+    val planStartDate: LocalDateTime,  // When the actual event/show happens
+    @Column(name = "plan_end_date")
+    val planEndDate: LocalDateTime,    // When the actual event/show ends
     @Column(name = "price_range_min")
     val priceRangeMin: BigDecimal,
     @Column(name = "price_range_max")
@@ -31,10 +32,10 @@ class EventJpaEntity(
     val sellMode: String,
     @Column(name = "organizer_company_id", nullable = true)
     val organizerCompanyId: String?,
-    @Column(name = "sell_period_from", nullable = true)
-    val sellPeriodFrom: LocalDateTime?,
-    @Column(name = "sell_period_to", nullable = true)
-    val sellPeriodTo: LocalDateTime?,
+    @Column(name = "sell_from", nullable = true)
+    val sellFrom: LocalDateTime?,      // When ticket sales start
+    @Column(name = "sell_to", nullable = true)
+    val sellTo: LocalDateTime?,        // When ticket sales end
     @Column(name = "sold_out")
     val soldOut: Boolean,
     @Column(name = "last_update")

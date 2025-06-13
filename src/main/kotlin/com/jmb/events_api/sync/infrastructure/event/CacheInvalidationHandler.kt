@@ -16,13 +16,13 @@ class CacheInvalidationHandler {
 
     @EventListener
     fun handleEventSynced(event: EventSyncedEvent) {
-        logger.info("Invalidating cache due to new event: ${event.eventEntityId.value}")
+        logger.info("Invalidating cache due to new plan: ${event.eventEntityId.value}")
         // Future: integrate with Redis/Caffeine cache
     }
 
     @EventListener
     fun handleEventUpdated(event: EventUpdatedEvent) {
-        logger.info("Invalidating cache due to event update: ${event.eventEntityId.value}")
+        logger.info("Invalidating cache due to plan update: ${event.eventEntityId.value}")
         // Future: selective cache invalidation
     }
 }

@@ -16,16 +16,16 @@ class SyncBatchProcessor(
     private val logger = LoggerFactory.getLogger(SyncBatchProcessor::class.java)
 
     suspend fun processBatch(
-        events: List<ProviderEventDto>,
+        plans: List<ProviderEventDto>, // Parameter name updated but type stays same
         batchSize: Int = 50,
     ): BatchProcessingResult {
-        val batchResults = events.chunked(batchSize)
+        val batchResults = plans.chunked(batchSize)
             .withIndex()
             .map { (batchId, batch) ->
                 try {
-                    processEventBatch(batch, batchId)
+                    processPlanBatch(batch, batchId)
                 } catch (ex: Exception) {
-                    logger.error("Error processing batch $batchId", ex)
+                    logger.error("Error processing plan batch $batchId", ex)
                     BatchResult(batchId, batch.size, 0, batch.size)
                 }
             }
@@ -33,27 +33,27 @@ class SyncBatchProcessor(
             totalBatches = batchResults.size,
             successfulBatches = batchResults.filter { it.errorCount == 0 }.size,
             failedBatches = batchResults.filter { it.errorCount != 0 }.size,
-            totalEvents = events.size,
+            totalEvents = plans.size,
             successfulEvents = batchResults.sumOf { it.successCount },
             failedEvents = batchResults.sumOf { it.errorCount }
         )
     }
 
-    private suspend fun processEventBatch(batch: List<ProviderEventDto>, batchId: Int): BatchResult {
-        val domainEvents = batch.mapNotNull { eventDto ->
+    private suspend fun processPlanBatch(batch: List<ProviderEventDto>, batchId: Int): BatchResult {
+        val domainEvents = batch.mapNotNull { planDto ->
             try {
                 Event.fromProviderData(
                     id = EventId.generate(),
-                    providerEventId = eventDto.baseEventId,
-                    organizerCompanyId = eventDto.organizerCompanyId,
-                    sellPeriod = DateRange(eventDto.sellFrom, eventDto.sellTo),
-                    soldOut = eventDto.soldOut,
-                    title = eventDto.title,
-                    date = DateRange(eventDto.eventStartDate, eventDto.eventEndDate),
-                    zones = eventDto.zones.map { Zone(it.zoneId, it.name, it.price, it.capacity, it.numbered) }
+                    providerEventId = planDto.baseEventId, // This maps from base_plan_id
+                    organizerCompanyId = planDto.organizerCompanyId,
+                    sellPeriod = DateRange(planDto.sellFrom, planDto.sellTo),
+                    soldOut = planDto.soldOut,
+                    title = planDto.title,
+                    date = DateRange(planDto.eventStartDate, planDto.eventEndDate),
+                    zones = planDto.zones.map { Zone(it.zoneId, it.name, it.price, it.capacity, it.numbered) }
                 )
             } catch (e: Exception) {
-                logger.error("Failed to map event ${eventDto.baseEventId}", e)
+                logger.error("Failed to map plan ${planDto.baseEventId}", e)
                 null
             }
         }

@@ -12,9 +12,9 @@ class SchedulingConfig {
     @ConfigurationProperties(prefix = "fever.sync")
     data class SyncJobProperties(
         val interval: Duration = Duration.ofSeconds(5),
-        val batchSize: Int = 100,
-        val maxRetries: Int = 3,
-        val enabled: Boolean = true,
+        val batchSize: Int = 100,           // Plans per batch
+        val maxRetries: Int = 3,            // Max retries for plan sync
+        val enabled: Boolean = true,        // Enable/disable plan sync
         val healthCheckInterval: Duration = Duration.ofMinutes(5)
     )
 }

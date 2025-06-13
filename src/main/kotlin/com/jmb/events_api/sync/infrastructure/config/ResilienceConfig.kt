@@ -30,19 +30,19 @@ class ResilienceConfig {
         // Add event listeners for monitoring and logging
         circuitBreaker.eventPublisher
             .onStateTransition { event ->
-                logger.info("🔄 Provider API Circuit Breaker: ${event.stateTransition}")
+                logger.info("🔄 Provider Plan API Circuit Breaker: ${event.stateTransition}")
             }
             .onFailureRateExceeded { event ->
-                logger.warn("⚠️ Provider API failure rate exceeded: ${event.failureRate}%")
+                logger.warn("⚠️ Provider Plan API failure rate exceeded: ${event.failureRate}%")
             }
             .onCallNotPermitted { event ->
-                logger.warn("🚫 Provider API call blocked - Circuit Breaker is OPEN")
+                logger.warn("🚫 Provider Plan API call blocked - Circuit Breaker is OPEN")
             }
             .onSuccess { event ->
-                logger.debug("✅ Provider API call succeeded")
+                logger.debug("✅ Provider Plan API call succeeded")
             }
             .onError { event ->
-                logger.debug("❌ Provider API call failed: ${event.throwable?.message}")
+                logger.debug("❌ Provider Plan API call failed: ${event.throwable?.message}")
             }
 
         return circuitBreaker
@@ -58,15 +58,15 @@ class ResilienceConfig {
         // Add event listeners for monitoring and logging
         retry.eventPublisher
             .onRetry { event ->
-                logger.warn("Provider API retry attempt ${event.numberOfRetryAttempts}/${retry.retryConfig.maxAttempts} due to: ${event.lastThrowable?.message}")
+                logger.warn("Provider Plan API retry attempt ${event.numberOfRetryAttempts}/${retry.retryConfig.maxAttempts} due to: ${event.lastThrowable?.message}")
             }
             .onSuccess { event ->
                 if (event.numberOfRetryAttempts > 0) {
-                    logger.info("Provider API succeeded after ${event.numberOfRetryAttempts} retries")
+                    logger.info("Provider Plan API succeeded after ${event.numberOfRetryAttempts} retries")
                 }
             }
             .onError { event ->
-                logger.error("Provider API failed after ${event.numberOfRetryAttempts} retries. Last error: ${event.lastThrowable?.message}")
+                logger.error("Provider Plan API failed after ${event.numberOfRetryAttempts} retries. Last error: ${event.lastThrowable?.message}")
             }
 
         return retry
@@ -78,7 +78,7 @@ class ResilienceConfig {
 
         timeLimiter.eventPublisher
             .onTimeout { event ->
-                logger.warn("⏰ Provider API call timed out after ${timeLimiter.timeLimiterConfig.timeoutDuration}")
+                logger.warn("⏰ Provider Plan API call timed out after ${timeLimiter.timeLimiterConfig.timeoutDuration}")
             }
 
         return timeLimiter

@@ -30,34 +30,34 @@ class EventSyncScheduler(
     @Scheduled(fixedDelayString = "\${fever.sync.interval}")
     fun scheduleEventSync() {
         if (!syncInProgress.compareAndSet(false, true)) {
-            logger.warn("Sync already in progress, skipping this execution")
+            logger.warn("Plan sync already in progress, skipping this execution")
             return
         }
 
         try {
-            logger.info("🔄 Scheduler triggering sync...")
+            logger.info("🔄 Scheduler triggering plan sync...")
 
             if (!syncingEnabled) {
-                logger.info("⏸️ Sync process is disabled")
+                logger.info("⏸️ Plan sync process is disabled")
                 return
             }
 
             // Simple database check
             if (!isDatabaseReady()) {
-                logger.warn("⚠️ Database not ready - skipping sync")
+                logger.warn("⚠️ Database not ready - skipping plan sync")
                 return
             }
 
             runBlocking {
                 val result = syncJobOrchestrator.orchestrateFullSync()
                 if (result.success) {
-                    logger.info("Sync completed: ${result.successfulEvents}/${result.totalEvents} events")
+                    logger.info("Plan sync completed: ${result.successfulEvents}/${result.totalEvents} plans")
                 } else {
-                    logger.warn("Sync failed: ${result.errors.joinToString(", ")}")
+                    logger.warn("Plan sync failed: ${result.errors.joinToString(", ")}")
                 }
             }
         } catch (e: Exception) {
-            logger.error("Scheduled sync failed", e)
+            logger.error("Scheduled plan sync failed", e)
         } finally {
             syncInProgress.set(false)
         }

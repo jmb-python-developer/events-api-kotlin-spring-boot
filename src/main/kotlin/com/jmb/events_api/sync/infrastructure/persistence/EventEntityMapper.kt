@@ -10,22 +10,24 @@ class EventEntityMapper(
 ) {
 
     fun toDomain(entity: EventJpaEntity): Event {
-        val dateRange = DateRange(entity.sellFrom, entity.sellTo)
+        // Event timing (when the show actually happens)
+        val eventDateRange = DateRange(entity.planStartDate, entity.planEndDate)
         val priceRange = PriceRange(entity.priceRangeMin, entity.priceRangeMax)
 
-        val sellPeriod = if (entity.sellPeriodFrom != null && entity.sellPeriodTo != null) {
-            DateRange(entity.sellPeriodFrom!!, entity.sellPeriodTo!!)
+        // Sales timing (when tickets are sold) - this is the sell period
+        val sellPeriod = if (entity.sellFrom != null && entity.sellTo != null) {
+            DateRange(entity.sellFrom!!, entity.sellTo!!)
         } else null
 
         val zones = entity.zones.map { zoneEntityMapper.toDomain(it) }
         return Event.createOnline(
             id = EventId.of(entity.id),
             title = entity.title,
-            date = dateRange,
+            date = eventDateRange,  // When the event happens
             priceRange = priceRange,
             providerEventId = entity.providerEventId,
             organizerCompanyId = entity.organizerCompanyId,
-            sellPeriod = sellPeriod,
+            sellPeriod = sellPeriod,  // When tickets are sold
             soldOut = entity.soldOut,
             lastUpdated = entity.lastUpdated,
             zones = zones,
@@ -38,14 +40,14 @@ class EventEntityMapper(
             id = domain.id.value,
             providerEventId = domain.providerEventId,
             title = domain.title,
-            sellFrom = domain.date.from,
-            sellTo = domain.date.to,
+            planStartDate = domain.date.from,      // Event timing
+            planEndDate = domain.date.to,          // Event timing
             priceRangeMin = domain.priceRange.min,
             priceRangeMax = domain.priceRange.max,
             sellMode = domain.sellMode.name,
             organizerCompanyId = domain.organizerCompanyId,
-            sellPeriodFrom = domain.sellPeriod?.from,
-            sellPeriodTo = domain.sellPeriod?.to,
+            sellFrom = domain.sellPeriod?.from,    // Sales timing
+            sellTo = domain.sellPeriod?.to,        // Sales timing
             soldOut = domain.soldOut,
             lastUpdated = domain.lastUpdated,
             version = domain.version,
@@ -57,14 +59,14 @@ class EventEntityMapper(
             id = existingEntity.id,
             providerEventId = existingEntity.providerEventId,
             title = domain.title,
-            sellFrom = domain.date.from,
-            sellTo = domain.date.to,
+            planStartDate = domain.date.from,      // Event timing
+            planEndDate = domain.date.to,          // Event timing
             priceRangeMin = domain.priceRange.min,
             priceRangeMax = domain.priceRange.max,
             sellMode = domain.sellMode.name,
             organizerCompanyId = domain.organizerCompanyId,
-            sellPeriodFrom = domain.sellPeriod?.from,
-            sellPeriodTo = domain.sellPeriod?.to,
+            sellFrom = domain.sellPeriod?.from,    // Sales timing
+            sellTo = domain.sellPeriod?.to,        // Sales timing
             soldOut = domain.soldOut,
             lastUpdated = domain.lastUpdated,
             version = existingEntity.version, //Needed for JPA Optimistic Locking and Version automanagement

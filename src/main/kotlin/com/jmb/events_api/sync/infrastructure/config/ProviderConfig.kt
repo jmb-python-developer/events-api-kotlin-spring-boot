@@ -17,10 +17,13 @@ class ProviderConfig {
     fun restTemplate(): RestTemplate {
         return RestTemplate()
     }
-    
+
+    /**
+     * XML mapper configured for parsing plan data from provider API
+     */
     fun xmlMapper(): XmlMapper {
         return XmlMapper().apply {
-            // Don't fail on unknown XML properties
+            // Don't fail on unknown XML properties (plan structure may evolve)
             configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             // Handle empty strings as null
             configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
@@ -31,4 +34,3 @@ class ProviderConfig {
         }
     }
 }
-
