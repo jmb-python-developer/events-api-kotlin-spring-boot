@@ -9,7 +9,7 @@ import jakarta.persistence.Table
 import java.math.BigDecimal
 
 @Entity
-@Table(name = "zones")
+@Table(name = "zone")
 class ZoneJpaEntity(
     @Id
     val zoneId: String,

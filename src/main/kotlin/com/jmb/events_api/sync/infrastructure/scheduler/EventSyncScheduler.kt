@@ -34,7 +34,7 @@ class EventSyncScheduler(
         try {
             logger.info("Scheduler triggering sync...")
             runBlocking {
-                //syncJobOrchestrator.orchestrateFullSync()
+                syncJobOrchestrator.orchestrateFullSync()
             }
 
         } catch (e: Exception) {

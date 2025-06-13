@@ -6,3 +6,11 @@ CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"
 Syntax error in SQL statement "CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) [*]WHERE sell_mode = 'ONLINE'"; SQL statement:
 CREATE INDEX IF NOT EXISTS idx_event_date_range_online ON event(sell_from, sell_to) WHERE sell_mode = 'ONLINE' [42000-224]
+2025-06-13 11:34:23.190643+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ZONES" no encontrada
+Table "ZONES" not found; SQL statement:
+select z1_0.event_id,z1_0.zone_id,z1_0.capacity,z1_0.name,z1_0.numbered,z1_0.price from zones z1_0 where z1_0.event_id=? [42102-224]
+2025-06-13 11:34:23.196202+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "ZONES" no encontrada
+Table "ZONES" not found; SQL statement:
+select z1_0.event_id,z1_0.zone_id,z1_0.capacity,z1_0.name,z1_0.numbered,z1_0.price from zones z1_0 where z1_0.event_id=? [42102-224]
