@@ -16,7 +16,9 @@ class ZoneEntityMapper {
         )
     }
 
-    fun toEntity(domain: Zone, planEntity: PlanJpaEntity): ZoneJpaEntity {
+    fun toEntity(domain: Zone, planId: String, index: Int): ZoneJpaEntity {
+        val uniqueZoneId = "${planId}-zone-${index}"
+
         return ZoneJpaEntity(
             zoneId = domain.id,
             name = domain.name,
@@ -30,7 +32,7 @@ class ZoneEntityMapper {
         return entities.map { toDomain(it) }
     }
 
-    fun toEntityList(domains: List<Zone>, planEntity: PlanJpaEntity): List<ZoneJpaEntity> {
-        return domains.map { toEntity(it, planEntity) }
+    fun toEntityList(domains: List<Zone>, planId: String, index: Int): List<ZoneJpaEntity> {
+        return domains.map { toEntity(it, planId, index) }
     }
 }

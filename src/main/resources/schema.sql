@@ -16,10 +16,9 @@ CREATE TABLE IF NOT EXISTS plan (
     version BIGINT NOT NULL DEFAULT 1
 );
 
--- Zone table (updated to reference plan)
 CREATE TABLE IF NOT EXISTS zone (
     zone_id VARCHAR(255) PRIMARY KEY,
-    plan_id VARCHAR(255) NOT NULL,                  -- Updated from event_id
+    plan_id VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     capacity INTEGER NOT NULL,
@@ -34,3 +33,4 @@ CREATE INDEX IF NOT EXISTS idx_plan_sell_dates ON plan(sell_from, sell_to);
 CREATE INDEX IF NOT EXISTS idx_zone_plan_id ON zone(plan_id);
 CREATE INDEX IF NOT EXISTS idx_plan_sell_mode ON plan(sell_mode);
 CREATE INDEX IF NOT EXISTS idx_plan_pricing ON plan(price_range_min, price_range_max);
+CREATE INDEX IF NOT EXISTS idx_zone_plan_id ON zone(plan_id);

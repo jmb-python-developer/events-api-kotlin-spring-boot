@@ -38,8 +38,8 @@ class PlanRepositoryAdapter(
 
     private fun setupZones(entity: PlanJpaEntity, plan: Plan) {
         entity.zones.clear()
-        val zones = plan.zones.map { zone ->
-            val zoneEntity = zoneEntityMapper.toEntity(zone, entity)
+        val zones = plan.zones.mapIndexed {index, zone ->
+            val zoneEntity = zoneEntityMapper.toEntity(zone, entity.id, index)
             zoneEntity.plan = entity
             zoneEntity
         }

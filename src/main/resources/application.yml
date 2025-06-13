@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./data/plansdb  # Updated database name
+    url: jdbc:h2:file:./data/plansdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -18,10 +18,10 @@ spring:
     defer-datasource-initialization: false
     open-in-view: false
 
-  # ← Add SQL initialization config
+  # Add SQL initialization config
   sql:
     init:
-      mode: always  # ← Execute scripts for all database types
+      mode: always
       schema-locations: classpath:schema.sql
       data-locations: [ ] # classpath:data.sql # uncomment for dev testing and data initialization
       continue-on-error: false
@@ -71,7 +71,7 @@ resilience4j:
 # Provider Configuration
 fever:
   provider:
-    url: http://127.0.0.1:3001/api/events # Provider still serves on events endpoint
+    url: https://provider.code-challenge.feverup.com/api/events # Provider still serves on events endpoint - Test: http://127.0.0.1:3001/api/events
     timeout: 5s
     retry-attempts: 3
     retry-delay: 500ms
@@ -79,7 +79,7 @@ fever:
     interval: 10000                    # How often to run plan sync
     batch-size: 100                 # Plans per batch
     max-retries: 3                  # Max retry attempts
-    enabled: false                   # Enable/disable scheduling
+    enabled: true                   # Enable/disable scheduling
 
 # Clean logging
 logging:
