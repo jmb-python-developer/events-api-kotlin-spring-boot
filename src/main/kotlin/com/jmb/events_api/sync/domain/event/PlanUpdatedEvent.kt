@@ -3,14 +3,14 @@ package com.jmb.events_api.sync.domain.event
 import com.jmb.events_api.shared.domain.event.DomainEvent
 import com.jmb.events_api.shared.domain.event.EventType
 import com.jmb.events_api.sync.domain.model.DateRange
-import com.jmb.events_api.sync.domain.model.EventId
+import com.jmb.events_api.sync.domain.model.PlanId
 import com.jmb.events_api.sync.domain.model.PriceRange
 import java.time.Instant
 import java.util.UUID
 
-data class EventUpdatedEvent(
-    val eventEntityId: EventId,
-    val providerEventId: String,
+data class PlanUpdatedEvent(
+    val planEntityId: PlanId,
+    val providerPlanId: String,
     val previousVersion: Long,
     val newVersion: Long,
 
@@ -29,5 +29,5 @@ data class EventUpdatedEvent(
     val updatedAt: Instant = Instant.now(),
     override val eventId: String = UUID.randomUUID().toString(),
     override val occurredAt: Instant = Instant.now(),
-    override val eventType: String = EventType.EVENT_UPDATED.value,
+    override val eventType: String = EventType.PLAN_UPDATED.value,
 ) : DomainEvent

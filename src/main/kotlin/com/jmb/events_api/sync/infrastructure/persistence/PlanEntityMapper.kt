@@ -5,13 +5,13 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class EventEntityMapper(
+class PlanEntityMapper(
     private val zoneEntityMapper: ZoneEntityMapper
 ) {
 
-    fun toDomain(entity: EventJpaEntity): Event {
-        // Event timing (when the show actually happens)
-        val eventDateRange = DateRange(entity.planStartDate, entity.planEndDate)
+    fun toDomain(entity: PlanJpaEntity): Plan {
+        // Plan timing (when the show actually happens)
+        val planDateRange = DateRange(entity.planStartDate, entity.planEndDate)
         val priceRange = PriceRange(entity.priceRangeMin, entity.priceRangeMax)
 
         // Sales timing (when tickets are sold) - this is the sell period
@@ -20,12 +20,12 @@ class EventEntityMapper(
         } else null
 
         val zones = entity.zones.map { zoneEntityMapper.toDomain(it) }
-        return Event.createOnline(
-            id = EventId.of(entity.id),
+        return Plan.createOnline(
+            id = PlanId.of(entity.id),
             title = entity.title,
-            date = eventDateRange,  // When the event happens
+            date = planDateRange,  // When the plan happens
             priceRange = priceRange,
-            providerEventId = entity.providerEventId,
+            providerPlanId = entity.providerPlanId,
             organizerCompanyId = entity.organizerCompanyId,
             sellPeriod = sellPeriod,  // When tickets are sold
             soldOut = entity.soldOut,
@@ -35,13 +35,13 @@ class EventEntityMapper(
         )
     }
 
-    fun toEntity(domain: Event): EventJpaEntity {
-        return EventJpaEntity(
+    fun toEntity(domain: Plan): PlanJpaEntity {
+        return PlanJpaEntity(
             id = domain.id.value,
-            providerEventId = domain.providerEventId,
+            providerPlanId = domain.providerPlanId,
             title = domain.title,
-            planStartDate = domain.date.from,      // Event timing
-            planEndDate = domain.date.to,          // Event timing
+            planStartDate = domain.date.from,      // Plan timing
+            planEndDate = domain.date.to,          // Plan timing
             priceRangeMin = domain.priceRange.min,
             priceRangeMax = domain.priceRange.max,
             sellMode = domain.sellMode.name,
@@ -54,13 +54,13 @@ class EventEntityMapper(
         )
     }
 
-    fun toEntityForUpdate(domain: Event, existingEntity: EventJpaEntity): EventJpaEntity {
-        return EventJpaEntity(
+    fun toEntityForUpdate(domain: Plan, existingEntity: PlanJpaEntity): PlanJpaEntity {
+        return PlanJpaEntity(
             id = existingEntity.id,
-            providerEventId = existingEntity.providerEventId,
+            providerPlanId = existingEntity.providerPlanId,
             title = domain.title,
-            planStartDate = domain.date.from,      // Event timing
-            planEndDate = domain.date.to,          // Event timing
+            planStartDate = domain.date.from,      // Plan timing
+            planEndDate = domain.date.to,          // Plan timing
             priceRangeMin = domain.priceRange.min,
             priceRangeMax = domain.priceRange.max,
             sellMode = domain.sellMode.name,

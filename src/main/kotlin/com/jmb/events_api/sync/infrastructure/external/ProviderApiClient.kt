@@ -1,7 +1,7 @@
 package com.jmb.events_api.sync.infrastructure.external
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.jmb.events_api.sync.application.dto.ProviderEventDto
+import com.jmb.events_api.sync.application.dto.ProviderPlanDto
 import com.jmb.events_api.sync.domain.port.out.ProviderClientPort
 import com.jmb.events_api.sync.domain.port.out.ProviderProperties
 import com.jmb.events_api.sync.infrastructure.config.ProviderConfig
@@ -33,13 +33,13 @@ class ProviderApiClient(
     private val logger = LoggerFactory.getLogger(ProviderApiClient::class.java)
     private val xmlMapper: XmlMapper = providerConfig.xmlMapper()
 
-    override suspend fun fetchEvents(): List<ProviderEventDto> {
+    override suspend fun fetchPlans(): List<ProviderPlanDto> {
         val startTime = Instant.now()
 
         return try {
             logger.info("Fetching plans from provider: ${providerProperties.url}")
 
-            val events = timeLimiter.executeSuspendFunction {
+            val plans = timeLimiter.executeSuspendFunction {
                 circuitBreaker.executeSuspendFunction {
                     retry.executeSuspendFunction {
                         fetchPlansFromProvider()
@@ -48,9 +48,9 @@ class ProviderApiClient(
             }
 
             val duration = java.time.Duration.between(startTime, Instant.now())
-            logger.info("Successfully fetched ${events.size} plans in ${duration.toMillis()}ms")
+            logger.info("Successfully fetched ${plans.size} plans in ${duration.toMillis()}ms")
 
-            events
+            plans
 
         } catch (e: Exception) {
             val duration = java.time.Duration.between(startTime, Instant.now())
@@ -69,17 +69,16 @@ class ProviderApiClient(
         }
     }
 
-    private suspend fun fetchPlansFromProvider(): List<ProviderEventDto> = withContext(Dispatchers.IO) {
+    private suspend fun fetchPlansFromProvider(): List<ProviderPlanDto> = withContext(Dispatchers.IO) {
         try {
             logger.debug("Making HTTP call to provider API")
             val xmlContent = restTemplate.getForObject(providerProperties.url, String::class.java)
                 ?: throw ProviderApiException.invalidResponse("Empty response from provider")
-
             logger.debug("Received XML response, parsing...")
             val planListResponse = xmlMapper.readValue(xmlContent, PlanListResponseDto::class.java)
-            val events = planListResponse.toCleanEvents()
-            logger.debug("Parsed ${events.size} online plans from provider response")
-            events
+            val plans = planListResponse.toCleanPlans()
+            logger.debug("Parsed ${plans.size} online plans from provider response")
+            plans
         } catch (e: Exception) {
             when (e) {
                 is ProviderApiException -> throw e

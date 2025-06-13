@@ -1,8 +1,8 @@
 package com.jmb.events_api.sync.infrastructure.event
 
-import com.jmb.events_api.sync.domain.event.EventSyncedEvent
-import com.jmb.events_api.sync.domain.event.EventUpdatedEvent
-import com.jmb.events_api.sync.domain.event.SyncFailedEvent
+import com.jmb.events_api.sync.domain.event.PlanSyncedEvent
+import com.jmb.events_api.sync.domain.event.PlanUpdatedEvent
+import com.jmb.events_api.sync.domain.event.PlanFailedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
@@ -16,19 +16,19 @@ class SyncMetricsHandler {
     private val logger = LoggerFactory.getLogger(SyncMetricsHandler::class.java)
 
     @EventListener
-    fun handleEventSynced(event: EventSyncedEvent) {
-        logger.info("Plan Synced: ${event.title} (ID: ${event.eventEntityId.value})")
+    fun handlePlanSynced(event: PlanSyncedEvent) {
+        logger.info("Plan Synced: ${event.title} (ID: ${event.planEntityId.value})")
         // Here you could integrate with Micrometer metrics
         // meterRegistry.counter("plans.synced").increment()
     }
 
     @EventListener
-    fun handleEventUpdated(event: EventUpdatedEvent) {
-        logger.info("Plan updated: ${event.eventEntityId.value}, price changed: ${event.newPriceRange}")
+    fun handlePlanUpdated(event: PlanUpdatedEvent) {
+        logger.info("Plan updated: ${event.planEntityId.value}, price changed: ${event.newPriceRange}")
     }
 
     @EventListener
-    fun handleSyncFailed(event: SyncFailedEvent) {
+    fun handleSyncFailed(event: PlanFailedEvent) {
         logger.error("Sync failed for provider plan ID ${event.providerEventId}: ${event.failureReason}")
     }
 }

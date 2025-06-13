@@ -13,17 +13,17 @@ import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "EVENT")
-class EventJpaEntity(
+@Table(name = "PLAN")
+class PlanJpaEntity(
     @Id
     val id: String,
-    @Column(name = "provider_event_id")
-    val providerEventId: String,  // Maps to base_plan_id from provider
+    @Column(name = "provider_plan_id")
+    val providerPlanId: String,  // Maps to base_plan_id from provider
     val title: String,
     @Column(name = "plan_start_date")
-    val planStartDate: LocalDateTime,  // When the actual event/show happens
+    val planStartDate: LocalDateTime,  // When the actual plan/show happens
     @Column(name = "plan_end_date")
-    val planEndDate: LocalDateTime,    // When the actual event/show ends
+    val planEndDate: LocalDateTime,    // When the actual plan/show ends
     @Column(name = "price_range_min")
     val priceRangeMin: BigDecimal,
     @Column(name = "price_range_max")
@@ -44,7 +44,7 @@ class EventJpaEntity(
     val version: Long = 1
 ) {
     // Simple zones relationship - NO CONSTRUCTOR PARAMETER
-    @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "plan", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var zones: MutableList<ZoneJpaEntity> = mutableListOf()
 
     // JPA no-arg constructor

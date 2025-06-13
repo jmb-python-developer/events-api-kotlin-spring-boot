@@ -1,6 +1,5 @@
--- Plan 1: Camela en concierto (base_plan_id="291")
-INSERT INTO event (
-    id, provider_event_id, title,
+INSERT INTO plan (
+    id, provider_plan_id, title,
     plan_start_date, plan_end_date,        -- When the show happens
     price_range_min, price_range_max,
     sell_mode, organizer_company_id,
@@ -16,8 +15,8 @@ INSERT INTO event (
 );
 
 -- Plan 2: Los Morancos (base_plan_id="1591")
-INSERT INTO event (
-    id, provider_event_id, title,
+INSERT INTO plan (
+    id, provider_plan_id, title,
     plan_start_date, plan_end_date,        -- When the show happens
     price_range_min, price_range_max,
     sell_mode, organizer_company_id,
@@ -33,8 +32,8 @@ INSERT INTO event (
 );
 
 -- Plan 3: Tributo a Juanito Valderrama (base_plan_id="444") - OFFLINE, won't show in results
-INSERT INTO event (
-    id, provider_event_id, title,
+INSERT INTO plan (
+    id, provider_plan_id, title,
     plan_start_date, plan_end_date,        -- When the show happens
     price_range_min, price_range_max,
     sell_mode, organizer_company_id,
@@ -50,8 +49,8 @@ INSERT INTO event (
 );
 
 -- Plan 4: Future Plan for Testing Date Ranges
-INSERT INTO event (
-    id, provider_event_id, title,
+INSERT INTO plan (
+    id, provider_plan_id, title,
     plan_start_date, plan_end_date,        -- When the show happens
     price_range_min, price_range_max,
     sell_mode, organizer_company_id,
@@ -66,20 +65,20 @@ INSERT INTO event (
     false, CURRENT_TIMESTAMP, 1
 );
 
--- Zones remain the same (unchanged from before)
-INSERT INTO zone (zone_id, event_id, name, price, capacity, numbered) VALUES
+-- Zones updated to reference plan_id
+INSERT INTO zone (zone_id, plan_id, name, price, capacity, numbered) VALUES
 ('40', 'plan-291-demo', 'Platea', 20.00, 240, true),
 ('38', 'plan-291-demo', 'Grada 2', 15.00, 50, false),
 ('30', 'plan-291-demo', 'A28', 30.00, 90, true);
 
-INSERT INTO zone (zone_id, event_id, name, price, capacity, numbered) VALUES
+INSERT INTO zone (zone_id, plan_id, name, price, capacity, numbered) VALUES
 ('186-1', 'plan-1591-demo', 'Amfiteatre', 75.00, 0, true),
 ('186-2', 'plan-1591-demo', 'Amfiteatre', 65.00, 14, false);
 
-INSERT INTO zone (zone_id, event_id, name, price, capacity, numbered) VALUES
+INSERT INTO zone (zone_id, plan_id, name, price, capacity, numbered) VALUES
 ('7', 'plan-444-demo', 'Amfiteatre', 65.00, 22, false);
 
-INSERT INTO zone (zone_id, event_id, name, price, capacity, numbered) VALUES
+INSERT INTO zone (zone_id, plan_id, name, price, capacity, numbered) VALUES
 ('VIP-PLAN-001', 'plan-future-demo', 'VIP Section', 100.00, 50, true),
 ('GA-PLAN-001', 'plan-future-demo', 'General Admission', 25.00, 500, false),
 ('BAL-PLAN-001', 'plan-future-demo', 'Balcony', 60.00, 100, true);

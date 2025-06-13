@@ -3,20 +3,20 @@ package com.jmb.events_api.sync.domain.event
 import com.jmb.events_api.shared.domain.event.DomainEvent
 import com.jmb.events_api.shared.domain.event.EventType
 import com.jmb.events_api.sync.domain.model.DateRange
-import com.jmb.events_api.sync.domain.model.EventId
+import com.jmb.events_api.sync.domain.model.PlanId
 import com.jmb.events_api.sync.domain.model.PriceRange
 import java.time.Instant
 import java.util.UUID
 
 /**
- * Represents and event concerning a change in the [Event] domain model.
+ * Represents an event concerning a change in the [Plan] domain model.
  */
-data class EventSyncedEvent(
-    val eventEntityId: EventId,
+data class PlanSyncedEvent(
+    val planEntityId: PlanId,
     val title: String,
-    val providerEventId: String,
+    val providerPlanId: String,
     val organizerCompanyId: String?,
-    val eventDate: DateRange,           // Your actual date field
+    val planDate: DateRange,           // Your actual date field
     val priceRange: PriceRange,
     val sellPeriod: DateRange?,
     val soldOut: Boolean,
@@ -24,5 +24,5 @@ data class EventSyncedEvent(
     val syncedAt: Instant = Instant.now(),
     override val eventId: String = UUID.randomUUID().toString(),
     override val occurredAt: Instant = Instant.now(),
-    override val eventType: String = EventType.EVENT_SYNCED.value,
+    override val eventType: String = EventType.PLAN_SYNCED.value,
 ) : DomainEvent

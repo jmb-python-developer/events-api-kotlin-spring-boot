@@ -1,22 +1,22 @@
 package com.jmb.events_api.sync.infrastructure.scheduler
 
-import com.jmb.events_api.sync.application.dto.ProviderEventDto
-import com.jmb.events_api.sync.application.service.SyncEventsService
+import com.jmb.events_api.sync.application.dto.ProviderPlanDto
+import com.jmb.events_api.sync.application.service.SyncPlansService
 import com.jmb.events_api.sync.domain.model.DateRange
-import com.jmb.events_api.sync.domain.model.Event
-import com.jmb.events_api.sync.domain.model.EventId
+import com.jmb.events_api.sync.domain.model.Plan
+import com.jmb.events_api.sync.domain.model.PlanId
 import com.jmb.events_api.sync.domain.model.Zone
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
 class SyncBatchProcessor(
-    private val syncEventsService: SyncEventsService
+    private val syncPlansService: SyncPlansService
 ) {
     private val logger = LoggerFactory.getLogger(SyncBatchProcessor::class.java)
 
     suspend fun processBatch(
-        plans: List<ProviderEventDto>, // Parameter name updated but type stays same
+        plans: List<ProviderPlanDto>,
         batchSize: Int = 50,
     ): BatchProcessingResult {
         val batchResults = plans.chunked(batchSize)
@@ -33,41 +33,41 @@ class SyncBatchProcessor(
             totalBatches = batchResults.size,
             successfulBatches = batchResults.filter { it.errorCount == 0 }.size,
             failedBatches = batchResults.filter { it.errorCount != 0 }.size,
-            totalEvents = plans.size,
-            successfulEvents = batchResults.sumOf { it.successCount },
-            failedEvents = batchResults.sumOf { it.errorCount }
+            totalPlans = plans.size,                                    // Updated field name
+            successfulPlans = batchResults.sumOf { it.successCount },   // Updated field name
+            failedPlans = batchResults.sumOf { it.errorCount }          // Updated field name
         )
     }
 
-    private suspend fun processPlanBatch(batch: List<ProviderEventDto>, batchId: Int): BatchResult {
-        val domainEvents = batch.mapNotNull { planDto ->
+    private suspend fun processPlanBatch(batch: List<ProviderPlanDto>, batchId: Int): BatchResult {
+        val domainPlans = batch.mapNotNull { planDto ->
             try {
-                Event.fromProviderData(
-                    id = EventId.generate(),
-                    providerEventId = planDto.baseEventId, // This maps from base_plan_id
+                Plan.fromProviderData(
+                    id = PlanId.generate(),
+                    providerPlanId = planDto.basePlanId,
                     organizerCompanyId = planDto.organizerCompanyId,
                     sellPeriod = DateRange(planDto.sellFrom, planDto.sellTo),
                     soldOut = planDto.soldOut,
                     title = planDto.title,
-                    date = DateRange(planDto.eventStartDate, planDto.eventEndDate),
+                    date = DateRange(planDto.planStartDate, planDto.planEndDate),
                     zones = planDto.zones.map { Zone(it.zoneId, it.name, it.price, it.capacity, it.numbered) }
                 )
             } catch (e: Exception) {
-                logger.error("Failed to map plan ${planDto.baseEventId}", e)
+                logger.error("Failed to map plan ${planDto.basePlanId}", e)
                 null
             }
         }
 
-        if (domainEvents.isEmpty()) {
+        if (domainPlans.isEmpty()) {
             return BatchResult(batchId, batch.size, 0, batch.size)
         }
 
-        val processedEvents = syncEventsService.syncEvents(events = domainEvents)
+        val processedPlans = syncPlansService.syncPlans(plans = domainPlans)
         return BatchResult(
             batchNumber = batchId,
-            eventsProcessed = batch.size,
-            successCount = processedEvents.size,
-            errorCount = batch.size - processedEvents.size,
+            plansProcessed = batch.size,                    // Updated field name
+            successCount = processedPlans.size,
+            errorCount = batch.size - processedPlans.size,
         )
     }
 }

@@ -28,14 +28,14 @@ class SyncJobOrchestrator(
             CircuitBreaker.State.METRICS_ONLY -> {
                 logger.info("Circuit breaker is $state - proceeding with plan sync")
                 try {
-                    val plans = providerApiClient.fetchEvents() // Still maps to events internally
+                    val plans = providerApiClient.fetchPlans()
                     val batchResult = syncBatchProcessor.processBatch(plans, batchSize = 20)
 
                     SyncJobResult(
                         success = true,
-                        totalEvents = batchResult.totalEvents,
-                        successfulEvents = batchResult.successfulEvents,
-                        failedEvents = batchResult.failedEvents
+                        totalPlans = batchResult.totalPlans,           // Updated field name
+                        successfulPlans = batchResult.successfulPlans, // Updated field name
+                        failedPlans = batchResult.failedPlans          // Updated field name
                     )
                 } catch (e: Exception) {
                     logger.error("Plan sync failed in state $state", e)

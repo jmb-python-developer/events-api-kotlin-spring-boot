@@ -16,19 +16,19 @@ import javax.sql.DataSource
     havingValue = "true",
     matchIfMissing = true
 )
-class EventSyncScheduler(
+class PlanSyncScheduler(
     private val syncJobOrchestrator: SyncJobOrchestrator,
     private val dataSource: DataSource,
     @Value("\${fever.sync.enabled}") private val syncingEnabled: Boolean
 ) {
-    private val logger = LoggerFactory.getLogger(EventSyncScheduler::class.java)
+    private val logger = LoggerFactory.getLogger(PlanSyncScheduler::class.java)
 
     // Prevent overlapping executions
     private val syncInProgress = AtomicBoolean(false)
 
     //Default to 10 secs if not configured in application.yml
     @Scheduled(fixedDelayString = "\${fever.sync.interval}")
-    fun scheduleEventSync() {
+    fun schedulePlanSync() {
         if (!syncInProgress.compareAndSet(false, true)) {
             logger.warn("Plan sync already in progress, skipping this execution")
             return
@@ -51,7 +51,7 @@ class EventSyncScheduler(
             runBlocking {
                 val result = syncJobOrchestrator.orchestrateFullSync()
                 if (result.success) {
-                    logger.info("Plan sync completed: ${result.successfulEvents}/${result.totalEvents} plans")
+                    logger.info("Plan sync completed: ${result.successfulPlans}/${result.totalPlans} plans") // Updated field names
                 } else {
                     logger.warn("Plan sync failed: ${result.errors.joinToString(", ")}")
                 }

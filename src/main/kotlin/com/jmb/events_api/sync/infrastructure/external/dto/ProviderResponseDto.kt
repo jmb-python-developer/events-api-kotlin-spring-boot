@@ -3,7 +3,7 @@ package com.jmb.events_api.sync.infrastructure.external.dto
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import com.jmb.events_api.sync.application.dto.ProviderEventDto
+import com.jmb.events_api.sync.application.dto.ProviderPlanDto
 import com.jmb.events_api.sync.application.dto.ZoneDto
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -15,7 +15,7 @@ data class PlanListResponseDto(
     val output: OutputDto?
 ) {
     // Extension function for direct conversion with business logic
-    fun toCleanEvents(): List<ProviderEventDto> =
+    fun toCleanPlans(): List<ProviderPlanDto> =
         output?.basePlans
             ?.filter { it.sellMode.equals("online", ignoreCase = true) }
             ?.map { it.toCleanDto() }
@@ -71,14 +71,14 @@ data class BasePlanDto(
     }
 
     // Extension function for direct conversion
-    fun toCleanDto(): ProviderEventDto {
-        return ProviderEventDto(
-            baseEventId = basePlanId, // Map base_plan_id to baseEventId
+    fun toCleanDto(): ProviderPlanDto {
+        return ProviderPlanDto(
+            basePlanId = basePlanId, // Map base_plan_id to baseEventId
             title = title,
             sellMode = sellMode,
             organizerCompanyId = organizerCompanyId,
-            eventStartDate = LocalDateTime.parse(plan.planStartDate, PROVIDER_DATE_FORMAT),
-            eventEndDate = LocalDateTime.parse(plan.planEndDate, PROVIDER_DATE_FORMAT),
+            planStartDate = LocalDateTime.parse(plan.planStartDate, PROVIDER_DATE_FORMAT),
+            planEndDate = LocalDateTime.parse(plan.planEndDate, PROVIDER_DATE_FORMAT),
             sellFrom = LocalDateTime.parse(plan.sellFrom, PROVIDER_DATE_FORMAT),
             sellTo = LocalDateTime.parse(plan.sellTo, PROVIDER_DATE_FORMAT),
             soldOut = plan.soldOut.toBoolean(),

@@ -4,25 +4,25 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDateTime
 
-class Event(
-    val id: EventId,
+class Plan(
+    val id: PlanId,
     val title: String,
     val date: DateRange,
     val priceRange: PriceRange,
     val sellMode: SellMode,
-    val providerEventId: String,        // base_event_id from XML
+    val providerPlanId: String,        // base_plan_id from XML
     val organizerCompanyId: String?,    // organizer_company_id (optional)
     val sellPeriod: DateRange?,         // sell_from/sell_to dates
     val soldOut: Boolean,
-    val lastUpdated: Instant,           // When we last synced an event
+    val lastUpdated: Instant,           // When we last synced a plan
     val zones: List<Zone>,
     val version: Long = 1               // For optimistic locking
 ) {
-    //Validations for the Event creation
+    //Validations for the Plan creation
     init {
-        require(providerEventId.isNotBlank()) { "Provider event ID cannot be blank" }
+        require(providerPlanId.isNotBlank()) { "Provider plan ID cannot be blank" }
         require(title.isNotBlank()) { "Title cannot be blank" }
-        require(sellMode == SellMode.ONLINE) { "Only online events are allowed" }
+        require(sellMode == SellMode.ONLINE) { "Only online plans are allowed" }
     }
 
     fun isCurrentlyOnSale(): Boolean {
@@ -47,10 +47,10 @@ class Event(
         newSoldOut: Boolean = false,
         newOrganizerCompanyId: String? = null,
         newZones: List<Zone>,
-    ): Event {
-        return Event(
+    ): Plan {
+        return Plan(
             id = this.id,
-            providerEventId = this.providerEventId,
+            providerPlanId = this.providerPlanId,
             title = newTitle.trim(),
             date = date,
             priceRange = newPriceRange,
@@ -64,29 +64,29 @@ class Event(
         )
     }
 
-    //Online events type factory method
+    //Online plans type factory method
     companion object {
 
         fun createOnline(
-            id: EventId,
+            id: PlanId,
             title: String,
             date: DateRange,
             priceRange: PriceRange,
-            providerEventId: String,
+            providerPlanId: String,
             organizerCompanyId: String? = null,
             sellPeriod: DateRange? = null,
             soldOut: Boolean = false,
             lastUpdated: Instant = Instant.now(),
             zones: List<Zone>,
             version: Long = 1,
-        ): Event {
-            return Event(
+        ): Plan {
+            return Plan(
                 id = id,
                 title = title,
                 date = date,
                 priceRange,
                 sellMode = SellMode.ONLINE,
-                providerEventId = providerEventId,
+                providerPlanId = providerPlanId,
                 organizerCompanyId = organizerCompanyId,
                 sellPeriod = sellPeriod,
                 soldOut = soldOut,
@@ -98,17 +98,17 @@ class Event(
 
         // Alternative factory for provider sync scenarios
         fun fromProviderData(
-            id: EventId,
-            providerEventId: String,
+            id: PlanId,
+            providerPlanId: String,
             organizerCompanyId: String? = null,
             sellPeriod: DateRange? = null,
             soldOut: Boolean = false,
             title: String,
             date: DateRange,
             zones: List<Zone>,
-        ): Event {
+        ): Plan {
             val priceRange = if (zones.isEmpty()) {
-                throw IllegalArgumentException("Event must have at least one zone")
+                throw IllegalArgumentException("Plan must have at least one zone")
             } else {
                 val minPrice = zones.minOf { it.price }
                 val maxPrice = zones.maxOf { it.price }
@@ -117,7 +117,7 @@ class Event(
 
             return createOnline(
                 id = id,
-                providerEventId = providerEventId,
+                providerPlanId = providerPlanId,
                 organizerCompanyId = organizerCompanyId,
                 sellPeriod = sellPeriod,
                 soldOut = soldOut,
@@ -129,6 +129,7 @@ class Event(
         }
     }
 }
+
 
 // Zone class for calculating prices
 data class Zone(

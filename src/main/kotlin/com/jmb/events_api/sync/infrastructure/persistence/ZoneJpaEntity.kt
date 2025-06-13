@@ -18,10 +18,10 @@ class ZoneJpaEntity(
     val capacity: Int,
     val numbered: Boolean
 ) {
-    // Simple event relationship - SEPARATE FROM CONSTRUCTOR
+    // Simple plan relationship - SEPARATE FROM CONSTRUCTOR
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id")
-    lateinit var event: EventJpaEntity
+    @JoinColumn(name = "plan_id")
+    lateinit var plan: PlanJpaEntity
 
     // JPA no-arg constructor
     constructor() : this("", "", BigDecimal.ZERO, 0, false)

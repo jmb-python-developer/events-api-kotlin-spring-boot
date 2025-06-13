@@ -3,13 +3,13 @@ package com.jmb.events_api.sync.application.dto
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-data class ProviderEventDto(
-    val baseEventId: String,
+data class ProviderPlanDto(
+    val basePlanId: String,           // Updated from baseEventId
     val title: String,
     val sellMode: String,
     val organizerCompanyId: String?,
-    val eventStartDate: LocalDateTime,
-    val eventEndDate: LocalDateTime,
+    val planStartDate: LocalDateTime, // Updated from eventStartDate
+    val planEndDate: LocalDateTime,   // Updated from eventEndDate
     val sellFrom: LocalDateTime,
     val sellTo: LocalDateTime,
     val soldOut: Boolean,

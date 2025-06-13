@@ -16,7 +16,7 @@ class ZoneEntityMapper {
         )
     }
 
-    fun toEntity(domain: Zone, eventEntity: EventJpaEntity): ZoneJpaEntity {
+    fun toEntity(domain: Zone, planEntity: PlanJpaEntity): ZoneJpaEntity {
         return ZoneJpaEntity(
             zoneId = domain.id,
             name = domain.name,
@@ -30,7 +30,7 @@ class ZoneEntityMapper {
         return entities.map { toDomain(it) }
     }
 
-    fun toEntityList(domains: List<Zone>, eventEntity: EventJpaEntity): List<ZoneJpaEntity> {
-        return domains.map { toEntity(it, eventEntity) }
+    fun toEntityList(domains: List<Zone>, planEntity: PlanJpaEntity): List<ZoneJpaEntity> {
+        return domains.map { toEntity(it, planEntity) }
     }
 }

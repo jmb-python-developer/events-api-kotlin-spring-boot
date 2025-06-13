@@ -9,7 +9,7 @@ interface DomainEvent {
 }
 
 enum class EventType(val value: String) {
-    EVENT_SYNCED("EventSynced"),
-    EVENT_UPDATED("EventUpdated"),
-    EVENT_SYNC_FAILED("EventSynced"),
+    PLAN_SYNCED("PlanSynced"),
+    PLAN_UPDATED("PlanUpdated"),
+    PLAN_SYNC_FAILED("PlanSyncFailed"),
 }

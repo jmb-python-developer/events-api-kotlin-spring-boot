@@ -71,7 +71,7 @@ resilience4j:
 # Provider Configuration
 fever:
   provider:
-    url: http://127.0.0.1:3001/api/events # Updated to point to new plan endpoint
+    url: http://127.0.0.1:3001/api/events # Provider still serves on events endpoint
     timeout: 5s
     retry-attempts: 3
     retry-delay: 500ms
