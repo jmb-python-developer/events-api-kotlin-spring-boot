@@ -65,10 +65,9 @@ class SyncEventsService(
 
         } catch (e: OptimisticLockingFailureException) {
             logger.warn("Optimistic locking failure for event ${event.providerEventId}, retrying...")
-            throw e // Will trigger @Retryable
+            throw e // Will trigger retry functionality
         } catch (e: Exception) {
             logger.error("Failed to process event ${event.providerEventId}", e)
-
             // Publish failure event
             domainEventPublisher.publish(
                 SyncFailedEvent(
@@ -109,7 +108,7 @@ class SyncEventsService(
         val hasChanges = detectSignificantChanges(existingEvent, event, event.priceRange)
 
         if (!hasChanges) {
-            logger.debug("🔄 No significant changes for event: ${event.title}")
+            logger.debug("No significant changes for event: ${event.title}")
             return existingEvent
         }
 

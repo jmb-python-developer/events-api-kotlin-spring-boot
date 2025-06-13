@@ -17,14 +17,10 @@ class EventRepositoryAdapter(
     private val logger = LoggerFactory.getLogger(EventRepositoryAdapter::class.java)
 
     override fun upsertEvent(event: Event): Event {
-        logger.debug("Saving event with providerId: ${event.providerEventId}")
-
-        //Use upsert query instead of retrieving first the entity
-        var entityToSave = eventEntityMapper.toEntity(event)
+        val entityToSave = eventEntityMapper.toEntity(event)
         val zones = event.zones.map { zoneEntityMapper.toEntity(it, entityToSave) }
-        entityToSave.zones = zones
+        entityToSave.zones.addAll(zones)
         val rowsAffected = eventJpaRepository.upsertEvent(entityToSave)
-
         logger.debug("Upsert affected $rowsAffected rows for provider ID: ${event.providerEventId}")
         return event
     }

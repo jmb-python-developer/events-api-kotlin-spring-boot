@@ -27,14 +27,14 @@ class EventSyncScheduler(
     fun scheduleEventSync() {
         // Prevent overlapping sync operations
         if (!syncInProgress.compareAndSet(false, true)) {
-            logger.warn("⚠️ Sync already in progress, skipping this execution")
+            logger.warn("⚠Sync already in progress, skipping this execution")
             return
         }
 
         try {
             logger.info("Scheduler triggering sync...")
             runBlocking {
-                syncJobOrchestrator.orchestrateFullSync()
+                //syncJobOrchestrator.orchestrateFullSync()
             }
 
         } catch (e: Exception) {

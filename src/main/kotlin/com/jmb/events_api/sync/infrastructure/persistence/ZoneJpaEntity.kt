@@ -11,12 +11,18 @@ import java.math.BigDecimal
 @Entity
 @Table(name = "zones")
 class ZoneJpaEntity(
-    @Id val zoneId: String,
+    @Id
+    val zoneId: String,
     val name: String,
     val price: BigDecimal,
     val capacity: Int,
-    val numbered: Boolean,
+    val numbered: Boolean
+) {
+    // Simple event relationship - SEPARATE FROM CONSTRUCTOR
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
-    val event: EventJpaEntity
-)
+    lateinit var event: EventJpaEntity
+
+    // JPA no-arg constructor
+    constructor() : this("", "", BigDecimal.ZERO, 0, false)
+}

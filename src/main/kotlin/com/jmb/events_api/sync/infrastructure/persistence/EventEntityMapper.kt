@@ -68,7 +68,6 @@ class EventEntityMapper(
             soldOut = domain.soldOut,
             lastUpdated = Instant.now(),
             version = domain.version,
-            zones = entity.zones
         )
     }
 }

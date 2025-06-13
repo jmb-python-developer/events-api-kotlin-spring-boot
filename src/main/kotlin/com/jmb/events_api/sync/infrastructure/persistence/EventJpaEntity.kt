@@ -39,8 +39,14 @@ class EventJpaEntity(
     val soldOut: Boolean,
     @Column(name = "last_update")
     val lastUpdated: Instant,
-    @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var zones: List<ZoneJpaEntity> = emptyList(),
     @Version
     val version: Long = 1
-)
+) {
+    // Simple zones relationship - NO CONSTRUCTOR PARAMETER
+    @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    var zones: MutableList<ZoneJpaEntity> = mutableListOf()
+
+    // JPA no-arg constructor
+    constructor() : this("", "", "", LocalDateTime.now(), LocalDateTime.now(),
+        BigDecimal.ZERO, BigDecimal.ZERO, "", null, null, null, false, Instant.now(), 1)
+}

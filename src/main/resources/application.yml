@@ -76,7 +76,7 @@ fever:
     retry-attempts: 3
     retry-delay: 500ms
   sync:
-    interval: 5000                    # How often to run sync
+    interval: 10000                    # How often to run sync
     batch-size: 100                 # Events per batch
     max-retries: 3                  # Max retry attempts
     enabled: true                   # Enable/disable scheduling

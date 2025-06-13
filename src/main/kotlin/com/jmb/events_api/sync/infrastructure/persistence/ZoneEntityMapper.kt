@@ -23,7 +23,6 @@ class ZoneEntityMapper {
             price = domain.price,
             capacity = domain.capacity,
             numbered = domain.numbered,
-            event = eventEntity
         )
     }
 
