@@ -16,15 +16,4 @@ interface EventQueryPort {
     ): List<EventResponseDto>
 
     suspend fun findEventById(eventId: String): EventResponseDto?
-
-    suspend fun countEventsByDateRange(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime
-    ): Long
-
-    // Future: Add more specific query methods
-    suspend fun findEventsByPriceRange(
-        minPrice: java.math.BigDecimal,
-        maxPrice: java.math.BigDecimal
-    ): List<EventResponseDto>
 }

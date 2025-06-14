@@ -43,28 +43,4 @@ interface PlanJpaRepository : JpaRepository<PlanJpaEntity, String> {
         @Param("endDate") endDate: LocalDateTime,
         pageable: Pageable
     ): List<PlanJpaEntity>
-
-    @Query(
-        """
-        SELECT COUNT(p.id) FROM PlanJpaEntity p
-        WHERE p.planStartDate >= :startDate AND p.planEndDate <= :endDate
-        AND p.soldOut = false
-        """
-    )
-    fun countPlansByDateRange(
-        @Param("startDate") startDate: LocalDateTime,
-        @Param("endDate") endDate: LocalDateTime
-    ): Long
-
-    @Query(
-        """
-        SELECT p FROM PlanJpaEntity p
-        WHERE p.priceRangeMin >= :minPrice AND p.priceRangeMax <= :maxPrice
-        ORDER BY p.priceRangeMin ASC
-        """
-    )
-    fun findPlansByPriceRange(
-        @Param("minPrice") minPrice: java.math.BigDecimal,
-        @Param("maxPrice") maxPrice: java.math.BigDecimal
-    ): List<PlanJpaEntity>
 }

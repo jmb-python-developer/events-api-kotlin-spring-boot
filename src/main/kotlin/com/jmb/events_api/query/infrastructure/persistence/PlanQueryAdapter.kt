@@ -63,32 +63,4 @@ class PlanQueryAdapter(
             )
         }
     }
-
-    override suspend fun countEventsByDateRange(
-        startDate: LocalDateTime,
-        endDate: LocalDateTime
-    ): Long {
-        val count = planJpaRepository.countPlansByDateRange(startDate, endDate)
-        logger.debug("Number of plans from {} to {}: {} ", startDate, endDate, count)
-        return count
-    }
-
-    override suspend fun findEventsByPriceRange(
-        minPrice: BigDecimal,
-        maxPrice: BigDecimal
-    ): List<EventResponseDto> {
-        val entities = planJpaRepository.findPlansByPriceRange(minPrice, maxPrice)
-        val events = entities.map { entity ->
-            EventResponseDto.fromDomain(
-                eventId = entity.id,
-                title = entity.title,
-                startDateTime = entity.planStartDate,  // Use plan timing for display
-                endDateTime = entity.planEndDate,      // Use plan timing for display
-                minPrice = entity.priceRangeMin,
-                maxPrice = entity.priceRangeMax
-            )
-        }
-        logger.debug("Found ${events.size} plans within price range")
-        return events
-    }
 }
