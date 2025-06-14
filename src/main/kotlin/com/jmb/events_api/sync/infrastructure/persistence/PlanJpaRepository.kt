@@ -11,13 +11,17 @@ import java.time.LocalDateTime
 interface PlanJpaRepository : JpaRepository<PlanJpaEntity, String> {
     fun findByProviderPlanId(planProviderId: String): PlanJpaEntity?
 
-    //Named query methods to search based on business functionality as main criteria
+    /**
+     * Named query methods to search based on business functionality as main criteria using indices,
+     * when it applies.
+     */
+
     @Query(
         """
-               SELECT p FROM PlanJpaEntity p
-                WHERE p.planStartDate >= :startDate
-                AND p.planEndDate <= :endDate
-                ORDER BY p.planStartDate ASC 
+       SELECT p FROM PlanJpaEntity p
+        WHERE p.planStartDate >= :startDate
+        AND p.planEndDate <= :endDate
+        ORDER BY p.planStartDate ASC 
     """
     )
     fun findPlansByDateRange(
@@ -42,9 +46,9 @@ interface PlanJpaRepository : JpaRepository<PlanJpaEntity, String> {
 
     @Query(
         """
-            SELECT COUNT(p.id) FROM PlanJpaEntity p
-            WHERE p.planStartDate >= :startDate AND p.planEndDate <= :endDate
-            AND p.soldOut = false
+        SELECT COUNT(p.id) FROM PlanJpaEntity p
+        WHERE p.planStartDate >= :startDate AND p.planEndDate <= :endDate
+        AND p.soldOut = false
         """
     )
     fun countPlansByDateRange(
@@ -63,8 +67,4 @@ interface PlanJpaRepository : JpaRepository<PlanJpaEntity, String> {
         @Param("minPrice") minPrice: java.math.BigDecimal,
         @Param("maxPrice") maxPrice: java.math.BigDecimal
     ): List<PlanJpaEntity>
-
-    fun findBySellMode(sellMode: String): List<PlanJpaEntity>
-
-    fun countByProviderPlanId(providerPlanId: String): Long
 }

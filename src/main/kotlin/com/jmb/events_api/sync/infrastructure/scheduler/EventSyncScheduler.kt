@@ -26,23 +26,26 @@ class PlanSyncScheduler(
     // Prevent overlapping executions
     private val syncInProgress = AtomicBoolean(false)
 
-    //Default to 10 secs if not configured in application.yml
+    companion object {
+        private const val DB_CHECK_TIMEOUT_SECONDS = 3
+    }
+
+    // Default to interval defined in application.yml
     @Scheduled(fixedDelayString = "\${fever.sync.interval}")
     fun schedulePlanSync() {
+        if (!syncingEnabled) {
+            logger.info("⏸️ Plan sync process is disabled")
+            return
+        }
+
         if (!syncInProgress.compareAndSet(false, true)) {
-            logger.warn("Plan sync already in progress, skipping this execution")
+            logger.warn("⏳ Plan sync already in progress, skipping this execution")
             return
         }
 
         try {
             logger.info("🔄 Scheduler triggering plan sync...")
 
-            if (!syncingEnabled) {
-                logger.info("⏸️ Plan sync process is disabled")
-                return
-            }
-
-            // Simple database check
             if (!isDatabaseReady()) {
                 logger.warn("⚠️ Database not ready - skipping plan sync")
                 return
@@ -51,9 +54,9 @@ class PlanSyncScheduler(
             runBlocking {
                 val result = syncJobOrchestrator.orchestrateFullSync()
                 if (result.success) {
-                    logger.info("Plan sync completed: ${result.successfulPlans}/${result.totalPlans} plans") // Updated field names
+                    logger.info("Plan sync completed: ${result.successfulPlans}/${result.totalPlans} successful")
                 } else {
-                    logger.warn("Plan sync failed: ${result.errors.joinToString(", ")}")
+                    logger.warn("Plan sync failed with errors: ${result.errors.joinToString(", ")}")
                 }
             }
         } catch (e: Exception) {
@@ -63,10 +66,9 @@ class PlanSyncScheduler(
         }
     }
 
-    // Simple database readiness check
     private fun isDatabaseReady(): Boolean {
         return try {
-            dataSource.connection.use { it.isValid(3) }
+            dataSource.connection.use { it.isValid(DB_CHECK_TIMEOUT_SECONDS) }
         } catch (e: Exception) {
             logger.warn("Database check failed: ${e.message}")
             false

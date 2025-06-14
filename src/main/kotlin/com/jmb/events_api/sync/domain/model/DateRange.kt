@@ -18,7 +18,7 @@ data class DateRange(
     }
 
     /**
-     * Check if two date ranges are equivalent (ignoring second-level differences)
+     * Check if two date ranges are equivalent (ignore second-level differences)
      */
     fun isEquivalentTo(other: DateRange): Boolean {
         return this.from.truncatedTo(ChronoUnit.MINUTES) ==

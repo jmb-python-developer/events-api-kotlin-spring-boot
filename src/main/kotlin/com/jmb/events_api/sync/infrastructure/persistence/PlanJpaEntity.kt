@@ -21,9 +21,9 @@ class PlanJpaEntity(
     val providerPlanId: String,  // Maps to base_plan_id from provider
     val title: String,
     @Column(name = "plan_start_date")
-    val planStartDate: LocalDateTime,  // When the actual plan/show happens
+    val planStartDate: LocalDateTime,
     @Column(name = "plan_end_date")
-    val planEndDate: LocalDateTime,    // When the actual plan/show ends
+    val planEndDate: LocalDateTime,
     @Column(name = "price_range_min")
     val priceRangeMin: BigDecimal,
     @Column(name = "price_range_max")
@@ -33,9 +33,9 @@ class PlanJpaEntity(
     @Column(name = "organizer_company_id", nullable = true)
     val organizerCompanyId: String?,
     @Column(name = "sell_from", nullable = true)
-    val sellFrom: LocalDateTime?,      // When ticket sales start
+    val sellFrom: LocalDateTime?,
     @Column(name = "sell_to", nullable = true)
-    val sellTo: LocalDateTime?,        // When ticket sales end
+    val sellTo: LocalDateTime?,
     @Column(name = "sold_out")
     val soldOut: Boolean,
     @Column(name = "last_update")
@@ -43,11 +43,12 @@ class PlanJpaEntity(
     @Version
     val version: Long = 1
 ) {
-    // Simple zones relationship - NO CONSTRUCTOR PARAMETER
     @OneToMany(mappedBy = "plan", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var zones: MutableList<ZoneJpaEntity> = mutableListOf()
 
-    // JPA no-arg constructor
-    constructor() : this("", "", "", LocalDateTime.now(), LocalDateTime.now(),
-        BigDecimal.ZERO, BigDecimal.ZERO, "", null, null, null, false, Instant.now(), 1)
+    // To provide Spring JPA "no-arg" constructor required by library
+    constructor() : this(
+        "", "", "", LocalDateTime.now(), LocalDateTime.now(),
+        BigDecimal.ZERO, BigDecimal.ZERO, "", null, null, null, false, Instant.now(), 1
+    )
 }

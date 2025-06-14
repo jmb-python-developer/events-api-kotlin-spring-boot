@@ -21,7 +21,6 @@ class SyncJobOrchestrator(
                 logger.warn("Circuit breaker is $state - skipping plan sync")
                 SyncJobResult(success = false, errors = listOf("Circuit Breaker is $state"))
             }
-
             CircuitBreaker.State.CLOSED,
             CircuitBreaker.State.HALF_OPEN,
             CircuitBreaker.State.DISABLED,
@@ -33,9 +32,9 @@ class SyncJobOrchestrator(
 
                     SyncJobResult(
                         success = true,
-                        totalPlans = batchResult.totalPlans,           // Updated field name
-                        successfulPlans = batchResult.successfulPlans, // Updated field name
-                        failedPlans = batchResult.failedPlans          // Updated field name
+                        totalPlans = batchResult.totalPlans,
+                        successfulPlans = batchResult.successfulPlans,
+                        failedPlans = batchResult.failedPlans
                     )
                 } catch (e: Exception) {
                     logger.error("Plan sync failed in state $state", e)

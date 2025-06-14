@@ -13,13 +13,6 @@ data class SyncJobResult(
     val errors: List<String> = emptyList()
 )
 
-data class HealthSyncResult(
-    val providerHealthy: Boolean,
-    val circuitBreakerState: String,
-    val responseTimeMs: Long,
-    val checkedAt: Instant
-)
-
 data class BatchProcessingResult(
     val totalBatches: Int,
     val successfulBatches: Int,

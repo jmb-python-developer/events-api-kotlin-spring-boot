@@ -21,12 +21,10 @@ class PlanRepositoryAdapter(
         val existingEntity = planJpaRepository.findByProviderPlanId(plan.providerPlanId)
 
         val savedEntity = if (existingEntity != null) {
-            // UPDATE: Use the existing entity's ID and version
             val entityToUpdate = planEntityMapper.toEntityForUpdate(plan, existingEntity)
             setupZones(entityToUpdate, plan)
             planJpaRepository.save(entityToUpdate)
         } else {
-            // INSERT: Create new entity
             val entityToSave = planEntityMapper.toEntity(plan)
             setupZones(entityToSave, plan)
             planJpaRepository.save(entityToSave)
@@ -44,13 +42,6 @@ class PlanRepositoryAdapter(
             zoneEntity
         }
         entity.zones.addAll(zones)
-    }
-
-    @Transactional(readOnly = true)
-    override fun findById(planId: String): Plan? {
-        return planJpaRepository.findById(planId)
-            .map { planEntityMapper.toDomain(it) }
-            .orElse(null)
     }
 
     @Transactional(readOnly = true)

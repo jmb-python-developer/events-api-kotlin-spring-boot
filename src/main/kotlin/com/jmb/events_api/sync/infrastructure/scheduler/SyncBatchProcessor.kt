@@ -29,13 +29,14 @@ class SyncBatchProcessor(
                     BatchResult(batchId, batch.size, 0, batch.size)
                 }
             }
+
         return BatchProcessingResult(
             totalBatches = batchResults.size,
             successfulBatches = batchResults.filter { it.errorCount == 0 }.size,
             failedBatches = batchResults.filter { it.errorCount != 0 }.size,
-            totalPlans = plans.size,                                    // Updated field name
-            successfulPlans = batchResults.sumOf { it.successCount },   // Updated field name
-            failedPlans = batchResults.sumOf { it.errorCount }          // Updated field name
+            totalPlans = plans.size,
+            successfulPlans = batchResults.sumOf { it.successCount },
+            failedPlans = batchResults.sumOf { it.errorCount }
         )
     }
 
@@ -63,9 +64,10 @@ class SyncBatchProcessor(
         }
 
         val processedPlans = syncPlansService.syncPlans(plans = domainPlans)
+
         return BatchResult(
             batchNumber = batchId,
-            plansProcessed = batch.size,                    // Updated field name
+            plansProcessed = batch.size,
             successCount = processedPlans.size,
             errorCount = batch.size - processedPlans.size,
         )

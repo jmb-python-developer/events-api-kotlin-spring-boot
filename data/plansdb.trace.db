@@ -1,0 +1,12 @@
+2025-06-13 18:15:08.154931+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "SELECT * FROM PLAN\000d\000a\000d\000a[*]SELECT * FROM ZONE"
+Syntax error in SQL statement "SELECT * FROM PLAN\000d\000a\000d\000a[*]SELECT * FROM ZONE"; SQL statement:
+SELECT * FROM PLAN
+
+SELECT * FROM ZONE [42000-224]
+2025-06-13 18:15:09.703039+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "SELECT * FROM PLAN\000d\000a\000d\000a[*]SELECT * FROM ZONE"
+Syntax error in SQL statement "SELECT * FROM PLAN\000d\000a\000d\000a[*]SELECT * FROM ZONE"; SQL statement:
+SELECT * FROM PLAN
+
+SELECT * FROM ZONE [42000-224]

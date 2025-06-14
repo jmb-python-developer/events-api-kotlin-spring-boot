@@ -26,7 +26,7 @@ class PriceRange(val min: BigDecimal, val max: BigDecimal) {
 
     fun contains(price: BigDecimal): Boolean = price in min..max
 
-    // Factory methods for common scenarios
+    // Factory methods
     companion object {
         private fun areEquivalent(price1: BigDecimal, price2: BigDecimal): Boolean {
             // Round to 2 decimal places for comparison (standard for currency)

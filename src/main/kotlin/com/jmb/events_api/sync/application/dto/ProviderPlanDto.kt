@@ -4,12 +4,12 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class ProviderPlanDto(
-    val basePlanId: String,           // Updated from baseEventId
+    val basePlanId: String,
     val title: String,
     val sellMode: String,
     val organizerCompanyId: String?,
-    val planStartDate: LocalDateTime, // Updated from eventStartDate
-    val planEndDate: LocalDateTime,   // Updated from eventEndDate
+    val planStartDate: LocalDateTime,
+    val planEndDate: LocalDateTime,
     val sellFrom: LocalDateTime,
     val sellTo: LocalDateTime,
     val soldOut: Boolean,

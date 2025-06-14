@@ -18,7 +18,7 @@ class SyncMetricsHandler {
     @EventListener
     fun handlePlanSynced(event: PlanSyncedEvent) {
         logger.info("Plan Synced: ${event.title} (ID: ${event.planEntityId.value})")
-        // Here you could integrate with Micrometer metrics
+        // Here can integrate with Micrometer metrics - Skipped due to time constraints
         // meterRegistry.counter("plans.synced").increment()
     }
 

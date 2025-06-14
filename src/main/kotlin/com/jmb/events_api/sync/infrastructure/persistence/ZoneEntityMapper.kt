@@ -17,6 +17,7 @@ class ZoneEntityMapper {
     }
 
     fun toEntity(domain: Zone, planId: String, index: Int): ZoneJpaEntity {
+        //zones might repeat id but differ in numbered/non_number seats
         val uniqueZoneId = "${planId}-zone-${index}"
 
         return ZoneJpaEntity(
@@ -26,13 +27,5 @@ class ZoneEntityMapper {
             capacity = domain.capacity,
             numbered = domain.numbered,
         )
-    }
-
-    fun toDomainList(entities: List<ZoneJpaEntity>): List<Zone> {
-        return entities.map { toDomain(it) }
-    }
-
-    fun toEntityList(domains: List<Zone>, planId: String, index: Int): List<ZoneJpaEntity> {
-        return domains.map { toEntity(it, planId, index) }
     }
 }

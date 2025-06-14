@@ -23,6 +23,6 @@ class ZoneJpaEntity(
     @JoinColumn(name = "plan_id")
     lateinit var plan: PlanJpaEntity
 
-    // JPA no-arg constructor
+    // To provide Spring JPA "no-arg" constructor required by library
     constructor() : this("", "", BigDecimal.ZERO, 0, false)
 }

@@ -1,5 +1,6 @@
 package com.jmb.events_api.sync.infrastructure.external
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.jmb.events_api.sync.application.dto.ProviderPlanDto
 import com.jmb.events_api.sync.domain.port.out.ProviderClientPort
@@ -7,6 +8,7 @@ import com.jmb.events_api.sync.domain.port.out.ProviderProperties
 import com.jmb.events_api.sync.infrastructure.config.ProviderConfig
 import com.jmb.events_api.sync.infrastructure.external.dto.PlanListResponseDto
 import com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
 import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
 import io.github.resilience4j.kotlin.retry.executeSuspendFunction
@@ -17,8 +19,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.HttpServerErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
+import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.TimeoutException
+import kotlin.jvm.java
 
 @Component
 class ProviderApiClient(
@@ -47,23 +55,25 @@ class ProviderApiClient(
                 }
             }
 
-            val duration = java.time.Duration.between(startTime, Instant.now())
+            val duration = Duration.between(startTime, Instant.now())
             logger.info("Successfully fetched ${plans.size} plans in ${duration.toMillis()}ms")
 
             plans
 
         } catch (e: Exception) {
-            val duration = java.time.Duration.between(startTime, Instant.now())
+            val duration = Duration.between(startTime, Instant.now())
             logger.error("Failed to fetch plans after ${duration.toMillis()}ms", e)
 
             throw when (e) {
                 is ProviderApiException -> e
-                is io.github.resilience4j.circuitbreaker.CallNotPermittedException -> {
+                is CallNotPermittedException -> {
                     ProviderApiException.circuitBreakerOpen("Circuit breaker is open - provider may be down")
                 }
-                is java.util.concurrent.TimeoutException -> {
+
+                is TimeoutException -> {
                     ProviderApiException.timeout(e)
                 }
+
                 else -> ProviderApiException.networkError(e)
             }
         }
@@ -82,19 +92,19 @@ class ProviderApiClient(
         } catch (e: Exception) {
             when (e) {
                 is ProviderApiException -> throw e
-                is com.fasterxml.jackson.core.JsonProcessingException -> {
+                is JsonProcessingException -> {
                     throw ProviderApiException.parseError(e)
                 }
 
-                is org.springframework.web.client.HttpClientErrorException -> {
+                is HttpClientErrorException -> {
                     throw ProviderApiException.httpError(e.statusCode.value(), e.responseBodyAsString)
                 }
 
-                is org.springframework.web.client.HttpServerErrorException -> {
+                is HttpServerErrorException -> {
                     throw ProviderApiException.httpError(e.statusCode.value(), e.responseBodyAsString)
                 }
 
-                is org.springframework.web.client.ResourceAccessException -> {
+                is ResourceAccessException -> {
                     throw ProviderApiException.networkError(e)
                 }
 

@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Internal Published for the Events happening within the modules of this App. This principle could/should
- * - depending on the architecture evolution based on scaling
- * - be extended to use a Broker's EventPublisher
+ * - depending on the architecture evolution based on scaling be extended to use a Broker's EventPublisher
  * in a different service.
  */
 @Component

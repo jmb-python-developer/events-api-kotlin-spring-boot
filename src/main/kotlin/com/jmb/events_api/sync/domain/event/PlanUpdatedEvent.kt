@@ -14,7 +14,7 @@ data class PlanUpdatedEvent(
     val previousVersion: Long,
     val newVersion: Long,
 
-    // ACTUAL previous and new values (not just flags)
+    // Previous and new values
     val previousTitle: String,
     val newTitle: String,
     val previousPriceRange: PriceRange,

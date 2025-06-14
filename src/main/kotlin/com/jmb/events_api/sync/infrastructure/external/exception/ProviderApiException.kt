@@ -78,28 +78,4 @@ class ProviderApiException(
             )
         }
     }
-
-    /**
-     * Check if this error type is retryable
-     */
-    fun isRetryable(): Boolean = when (errorType) {
-        ErrorType.NETWORK_ERROR,
-        ErrorType.TIMEOUT,
-        ErrorType.HTTP_ERROR -> true
-        ErrorType.PARSE_ERROR,
-        ErrorType.INVALID_RESPONSE,
-        ErrorType.CIRCUIT_BREAKER_OPEN,
-        ErrorType.UNEXPECTED_ERROR,
-        ErrorType.UNKNOWN -> false
-    }
-
-    /**
-     * Get suggested delay before retry (in milliseconds)
-     */
-    fun getSuggestedRetryDelay(): Long = when (errorType) {
-        ErrorType.NETWORK_ERROR -> 1000L
-        ErrorType.TIMEOUT -> 2000L
-        ErrorType.HTTP_ERROR -> 500L
-        else -> 0L
-    }
 }
