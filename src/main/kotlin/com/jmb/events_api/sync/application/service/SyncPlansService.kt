@@ -15,16 +15,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.collections.joinToString
 import kotlin.collections.mapNotNull
-import kotlin.jvm.java
 
-/**
- * Triggering flow:
- *
- * ScheduledJob (Infrastructure)
- *     → calls SyncPlansService (Application)
- *         → uses PlanRepositoryPort + ProviderClientPort (Domain interfaces)
- *             → implemented by JPA + HTTP adapters (Infrastructure)
- */
 @Service
 @Transactional
 class SyncPlansService(
@@ -39,29 +30,41 @@ class SyncPlansService(
     }
 
     suspend fun syncPlans(plans: Collection<Plan>): Collection<Plan> {
-        return plans.mapNotNull { plan -> processPlan(plan) }
+        return plans.mapNotNull { plan ->
+            try {
+                processPlan(plan)
+            } catch (e: OptimisticLockingFailureException) {
+                // After max retries exhausted, handle as failure
+                logger.error("Plan ${plan.providerPlanId} failed after ${MAX_RETRY_ATTEMPTS} retry attempts", e)
+                publishFailureEvent(plan, e)
+                null
+            } catch (e: Exception) {
+                // Handle other non-retryable exceptions
+                logger.error("Failed to process plan ${plan.providerPlanId}", e)
+                publishFailureEvent(plan, e)
+                null
+            }
+        }
     }
 
     /**
      * Process single plan with optimistic locking and retry mechanism
-     * Called by SyncBatchProcessor for each plan
+     * Called by syncPlans for each plan
+     *
+     * NOTE: This method should NOT catch OptimisticLockingFailureException
+     * to allow @Retryable to work properly
      */
     @Retryable(
         value = [OptimisticLockingFailureException::class],
         maxAttempts = MAX_RETRY_ATTEMPTS,
         backoff = Backoff(delay = 100, multiplier = 2.0)
     )
-    private suspend fun processPlan(plan: Plan): Plan? = try {
-        planRepository.findByProviderId(plan.providerPlanId)?.let {
-            updateIfChanged(it, plan)
+    private suspend fun processPlan(plan: Plan): Plan {
+        logger.debug("Processing plan: ${plan.providerPlanId}")
+
+        return planRepository.findByProviderId(plan.providerPlanId)?.let { existing ->
+            updateIfChanged(existing, plan)
         } ?: createNewPlan(plan)
-    } catch (e: OptimisticLockingFailureException) {
-        logger.warn("Optimistic locking failure for plan ${plan.providerPlanId}, retrying...")
-        throw e
-    } catch (e: Exception) {
-        logger.error("Failed to process plan ${plan.providerPlanId}", e)
-        publishFailureEvent(plan, e)
-        null
     }
 
     private suspend fun createNewPlan(plan: Plan): Plan {
