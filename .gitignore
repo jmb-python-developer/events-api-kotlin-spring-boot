@@ -40,5 +40,5 @@ curl-format.txt
 # H2 database files
 data/
 *.mv.db
-
+*.db
 
