@@ -23,5 +23,6 @@ class CacheInvalidationHandler {
     @EventListener
     fun handlePlanUpdated(event: PlanUpdatedEvent) {
         logger.warn("Invalidating cache due to plan update: ${event.planEntityId.value}")
+        // Here could be integrated with Redis/Caffeine cache - Skipped due to time constraint
     }
 }

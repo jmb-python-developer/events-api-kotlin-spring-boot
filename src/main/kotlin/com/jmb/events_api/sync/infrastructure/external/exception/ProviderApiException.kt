@@ -2,7 +2,6 @@ package com.jmb.events_api.sync.infrastructure.external.exception
 
 /**
  * Domain exception for provider-related errors.
- * Separates infrastructure concerns from domain logic.
  */
 class ProviderApiException(
     message: String,

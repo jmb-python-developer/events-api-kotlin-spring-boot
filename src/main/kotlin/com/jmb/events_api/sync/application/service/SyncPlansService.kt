@@ -47,13 +47,6 @@ class SyncPlansService(
         }
     }
 
-    /**
-     * Process single plan with optimistic locking and retry mechanism
-     * Called by syncPlans for each plan
-     *
-     * NOTE: This method should NOT catch OptimisticLockingFailureException
-     * to allow @Retryable to work properly
-     */
     @Retryable(
         value = [OptimisticLockingFailureException::class],
         maxAttempts = MAX_RETRY_ATTEMPTS,

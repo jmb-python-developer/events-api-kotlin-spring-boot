@@ -21,21 +21,16 @@ class PlanSyncSchedulerTest {
     private val dataSource = mockk<DataSource>()
     private val connection = mockk<Connection>()
 
-    // Test subject with dependency injection
     private lateinit var scheduler: PlanSyncScheduler
 
     @BeforeEach
     fun setUp() {
         clearAllMocks()
-
-        // Create scheduler with mocked dependencies
         scheduler = PlanSyncScheduler(
             syncJobOrchestrator = syncJobOrchestrator,
             dataSource = dataSource,
             syncingEnabled = true
         )
-
-        // Setup default database connection behavior
         every { dataSource.connection } returns connection
         every { connection.isValid(any()) } returns true
         every { connection.close() } just Runs
@@ -112,18 +107,14 @@ class PlanSyncSchedulerTest {
 
         @Test
         fun `should prevent overlapping executions`() = runTest {
-            // Get access to the private syncInProgress field
             val syncInProgress = ReflectionTestUtils.getField(scheduler, "syncInProgress") as AtomicBoolean
 
-            // Simulate sync already in progress
             syncInProgress.set(true)
 
             scheduler.schedulePlanSync()
 
-            // Should not execute orchestrator when sync is already in progress
             coVerify(exactly = 0) { syncJobOrchestrator.orchestrateFullSync() }
 
-            // syncInProgress should remain true (not reset)
             assertTrue(syncInProgress.get())
         }
 
@@ -136,7 +127,6 @@ class PlanSyncSchedulerTest {
 
             scheduler.schedulePlanSync()
 
-            // Flag should be reset after execution
             assertFalse(syncInProgress.get())
             coVerify(exactly = 1) { syncJobOrchestrator.orchestrateFullSync() }
         }
@@ -149,7 +139,6 @@ class PlanSyncSchedulerTest {
 
             scheduler.schedulePlanSync()
 
-            // Flag should be reset even after exception
             assertFalse(syncInProgress.get())
             coVerify(exactly = 1) { syncJobOrchestrator.orchestrateFullSync() }
         }
@@ -162,7 +151,6 @@ class PlanSyncSchedulerTest {
 
             scheduler.schedulePlanSync()
 
-            // Flag should be reset even when database check fails
             assertFalse(syncInProgress.get())
             coVerify(exactly = 0) { syncJobOrchestrator.orchestrateFullSync() }
         }
@@ -171,20 +159,16 @@ class PlanSyncSchedulerTest {
         fun `should handle concurrent access to syncInProgress flag`() = runTest {
             val syncInProgress = ReflectionTestUtils.getField(scheduler, "syncInProgress") as AtomicBoolean
 
-            // Simulate rapid successive calls
             val initialState = syncInProgress.get()
 
-            // First call should succeed
             val firstCallSucceeded = syncInProgress.compareAndSet(false, true)
 
-            // Second call should fail (sync already in progress)
             val secondCallSucceeded = syncInProgress.compareAndSet(false, true)
 
             assertFalse(initialState)
             assertTrue(firstCallSucceeded)
             assertFalse(secondCallSucceeded)
 
-            // Reset for cleanup
             syncInProgress.set(false)
         }
     }
@@ -201,7 +185,7 @@ class PlanSyncSchedulerTest {
 
             scheduler.schedulePlanSync()
 
-            verify(exactly = 1) { connection.isValid(3) } // 3 second timeout
+            verify(exactly = 1) { connection.isValid(3) }
         }
 
         @Test
@@ -229,7 +213,6 @@ class PlanSyncSchedulerTest {
             every { connection.isValid(3) } returns true
             every { connection.close() } throws SQLException("Close failed")
 
-            // Should not throw exception even when close() fails
             scheduler.schedulePlanSync()
 
             verify(exactly = 1) { connection.isValid(3) }
@@ -417,7 +400,7 @@ class PlanSyncSchedulerTest {
             val allowSyncToComplete = java.util.concurrent.CountDownLatch(1)
 
             coEvery { syncJobOrchestrator.orchestrateFullSync() } coAnswers {
-                syncStarted.countDown() // Signal that sync has started
+                syncStarted.countDown()
                 allowSyncToComplete.await() // Wait for test to allow completion
                 successResult
             }
@@ -430,7 +413,6 @@ class PlanSyncSchedulerTest {
             // Wait for first sync to actually start
             syncStarted.await()
 
-            // Now make rapid successive calls - these should be blocked
             scheduler.schedulePlanSync() // Should be skipped
             scheduler.schedulePlanSync() // Should be skipped
 

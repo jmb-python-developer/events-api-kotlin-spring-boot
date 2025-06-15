@@ -80,7 +80,6 @@ class PlanEntityMapperTest {
             version = version
         )
 
-        // Add a test zone
         val zoneEntity = ZoneJpaEntity("zone-1", "General", BigDecimal("25.00"), 100, false)
         zoneEntity.plan = entity
         entity.zones.add(zoneEntity)
