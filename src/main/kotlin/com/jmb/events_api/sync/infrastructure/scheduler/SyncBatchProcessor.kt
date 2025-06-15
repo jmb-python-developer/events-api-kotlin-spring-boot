@@ -1,3 +1,5 @@
+
+
 package com.jmb.events_api.sync.infrastructure.scheduler
 
 import com.jmb.events_api.sync.application.dto.ProviderPlanDto
@@ -19,28 +21,23 @@ class SyncBatchProcessor(
         plans: List<ProviderPlanDto>,
         batchSize: Int = 50,
     ): BatchProcessingResult {
+        if (plans.isEmpty()) {
+            return BatchProcessingResult.empty()
+        }
+
         val batchResults = plans.chunked(batchSize)
             .withIndex()
             .map { (batchId, batch) ->
-                try {
-                    processPlanBatch(batch, batchId)
-                } catch (ex: Exception) {
-                    logger.error("Error processing plan batch $batchId", ex)
-                    BatchResult(batchId, batch.size, 0, batch.size)
-                }
+                processPlanBatch(batch, batchId)
             }
 
-        return BatchProcessingResult(
-            totalBatches = batchResults.size,
-            successfulBatches = batchResults.filter { it.errorCount == 0 }.size,
-            failedBatches = batchResults.filter { it.errorCount != 0 }.size,
-            totalPlans = plans.size,
-            successfulPlans = batchResults.sumOf { it.successCount },
-            failedPlans = batchResults.sumOf { it.errorCount }
-        )
+        return BatchProcessingResult.fromBatchResults(batchResults, plans.size)
     }
 
     private suspend fun processPlanBatch(batch: List<ProviderPlanDto>, batchId: Int): BatchResult {
+        logger.debug("Processing batch $batchId with ${batch.size} plans")
+
+        var mappingFailures = 0
         val domainPlans = batch.mapNotNull { planDto ->
             try {
                 Plan.fromProviderData(
@@ -54,22 +51,35 @@ class SyncBatchProcessor(
                     zones = planDto.zones.map { Zone(it.zoneId, it.name, it.price, it.capacity, it.numbered) }
                 )
             } catch (e: Exception) {
-                logger.error("Failed to map plan ${planDto.basePlanId}", e)
+                logger.error("Failed to map plan ${planDto.basePlanId} to domain object", e)
+                mappingFailures++
                 null
             }
         }
 
-        if (domainPlans.isEmpty()) {
-            return BatchResult(batchId, batch.size, 0, batch.size)
+        var serviceFailures = 0
+        val processedPlans = if (domainPlans.isNotEmpty()) {
+            try {
+                syncPlansService.syncPlans(domainPlans)
+            } catch (e: Exception) {
+                logger.error("Service failed to process batch $batchId", e)
+                serviceFailures = domainPlans.size
+                emptyList()
+            }
+        } else {
+            emptyList()
         }
 
-        val processedPlans = syncPlansService.syncPlans(plans = domainPlans)
+        val totalFailures = mappingFailures + serviceFailures
+        val totalSuccesses = processedPlans.size
 
         return BatchResult(
             batchNumber = batchId,
             plansProcessed = batch.size,
-            successCount = processedPlans.size,
-            errorCount = batch.size - processedPlans.size,
+            successCount = totalSuccesses,
+            errorCount = totalFailures,
+            mappingFailures = mappingFailures,
+            serviceFailures = serviceFailures
         )
     }
 }
