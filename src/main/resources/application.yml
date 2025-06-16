@@ -59,9 +59,6 @@ resilience4j:
           - java.net.SocketTimeoutException
           - java.net.UnknownHostException
           - org.springframework.web.client.ResourceAccessException
-        ignoreExceptions:
-          - com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
-
   timelimiter:
     instances:
       providerApi:
@@ -71,15 +68,15 @@ resilience4j:
 # Provider Configuration
 fever:
   provider:
-    url: https://provider.code-challenge.feverup.com/api/events # Provider still serves on events endpoint - Test: http://127.0.0.1:3001/api/events
+    url: https://provider.code-challenge.feverup.com/api/events # Provider API URL
     timeout: 5s
     retry-attempts: 3
     retry-delay: 500ms
   sync:
-    interval: 10000                    # How often to run plan sync
+    interval: 5000                 # How often to run plan sync
     batch-size: 100                 # Plans per batch
     max-retries: 3                  # Max retry attempts
-    enabled: false                   # Enable/disable scheduling
+    enabled: true                  # Enable/disable scheduling
 
 # Clean logging
 logging:
