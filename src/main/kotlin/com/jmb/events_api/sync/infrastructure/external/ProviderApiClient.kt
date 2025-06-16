@@ -47,9 +47,9 @@ class ProviderApiClient(
         return try {
             logger.info("Fetching plans from provider: ${providerProperties.url}")
 
-            val plans = timeLimiter.executeSuspendFunction {
-                circuitBreaker.executeSuspendFunction {
-                    retry.executeSuspendFunction {
+            val plans = circuitBreaker.executeSuspendFunction {
+                retry.executeSuspendFunction {
+                    timeLimiter.executeSuspendFunction {
                         fetchPlansFromProvider()
                     }
                 }
@@ -62,7 +62,14 @@ class ProviderApiClient(
 
         } catch (e: Exception) {
             val duration = Duration.between(startTime, Instant.now())
-            logger.error("Failed to fetch plans after ${duration.toMillis()}ms", e)
+            when (e) {
+                is HttpServerErrorException ->
+                    logger.warn("Provider API temporarily unavailable (HTTP ${e.statusCode}). Will retry in next sync.")
+                is TimeoutException ->
+                    logger.warn("Provider API timeout after ${duration}ms. Service may be experiencing delays.")
+                else ->
+                    logger.error("Unexpected error fetching plans", e)
+            }
 
             throw when (e) {
                 is ProviderApiException -> e

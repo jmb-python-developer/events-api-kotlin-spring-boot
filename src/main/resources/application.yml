@@ -59,10 +59,12 @@ resilience4j:
           - java.net.SocketTimeoutException
           - java.net.UnknownHostException
           - org.springframework.web.client.ResourceAccessException
+          - com.jmb.events_api.sync.infrastructure.external.exception.ProviderApiException
+
   timelimiter:
     instances:
       providerApi:
-        timeoutDuration: 3s
+        timeoutDuration: 5s
         cancelRunningFuture: true
 
 # Provider Configuration
