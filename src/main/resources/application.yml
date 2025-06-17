@@ -30,6 +30,7 @@ spring:
     ansi:
       enabled: detect
 
+# Circuit Breaker and Retry Configuration
 resilience4j:
   circuitbreaker:
     instances:
@@ -39,20 +40,20 @@ resilience4j:
         slidingWindowType: COUNT_BASED
         minimumNumberOfCalls: 5
         waitDurationInOpenState: 30s
-        failureRateThreshold: 50
+        failureRateThreshold: 60
         eventConsumerBufferSize: 10
         registerHealthIndicator: true
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        slow-call-duration-threshold: 2s
+        slow-call-duration-threshold: 3s
         slow-call-rate-threshold: 50
 
   retry:
     instances:
       providerApi:
         maxAttempts: 3
-        waitDuration: 500ms
+        waitDuration: 1000ms
         enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2.0
+        exponentialBackoffMultiplier: 2
         enableRandomizedWait: false
         retryExceptions:
           - java.net.ConnectException
@@ -64,7 +65,7 @@ resilience4j:
   timelimiter:
     instances:
       providerApi:
-        timeoutDuration: 5s
+        timeoutDuration: 8s
         cancelRunningFuture: true
 
 # Provider Configuration
