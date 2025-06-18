@@ -41,4 +41,9 @@ curl-format.txt
 data/
 *.mv.db
 *.db
+*.trace.db
+
+# Specific H2 database files to never track
+data/plansdb.mv.db
+data/plansdb.trace.db
 
